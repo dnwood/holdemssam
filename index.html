@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>프리플랍 어드바이저</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0d1117;
+            color: #e6edf3;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container { max-width: 640px; margin: 0 auto; }
+        h1 { font-size: 1.4rem; color: #7ee787; margin-bottom: 4px; text-align: center; }
+        .subtitle { color: #484f58; font-size: 0.8rem; margin-bottom: 20px; text-align: center; }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 20px;
+            background: #161b22;
+            border-radius: 8px;
+            padding: 4px;
+        }
+        .tab {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #8b949e;
+            transition: all 0.15s;
+        }
+        .tab:hover { color: #e6edf3; }
+        .tab.active { background: #21262d; color: #e6edf3; }
+        .tab kbd { font-size: 0.7rem; background: #30363d; padding: 2px 5px; border-radius: 3px; margin-left: 4px; }
+
+        .panel { display: none; }
+        .panel.active { display: block; }
+
+        /* === CLI Mode === */
+        .cli-input-area {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+        }
+        .prompt-line { display: flex; align-items: center; gap: 8px; }
+        .prompt-symbol { color: #7ee787; font-weight: bold; }
+        #cliInput {
+            flex: 1;
+            background: none;
+            border: none;
+            outline: none;
+            color: #e6edf3;
+            font-family: inherit;
+            font-size: 1.1rem;
+            caret-color: #7ee787;
+        }
+        #cliInput::placeholder { color: #484f58; }
+
+        .cli-result {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 16px;
+            min-height: 60px;
+            margin-bottom: 16px;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+        }
+        .cli-result.raise { border-color: #3fb950; }
+        .cli-result.call { border-color: #d29922; }
+        .cli-result.fold { border-color: #f85149; }
+        .cli-result-action { font-size: 1.4rem; font-weight: 800; }
+        .cli-result-action.raise { color: #3fb950; }
+        .cli-result-action.call { color: #d29922; }
+        .cli-result-action.fold { color: #f85149; }
+        .cli-result-detail { color: #8b949e; font-size: 0.85rem; margin-top: 4px; }
+
+        .history { margin-bottom: 12px; max-height: 160px; overflow-y: auto; font-family: 'SF Mono', monospace; }
+        .history-item { display: flex; justify-content: space-between; padding: 4px 0; font-size: 0.8rem; border-bottom: 1px solid #21262d; }
+        .history-item .cmd { color: #8b949e; }
+        .history-item .act { font-weight: 700; }
+        .history-item .act.raise { color: #3fb950; }
+        .history-item .act.call { color: #d29922; }
+        .history-item .act.fold { color: #f85149; }
+
+        .help-box {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 16px;
+            font-size: 0.8rem;
+            color: #8b949e;
+            line-height: 1.6;
+        }
+        .help-box code { background: #21262d; padding: 2px 6px; border-radius: 4px; color: #e6edf3; }
+        .help-box .example { color: #7ee787; }
+
+        /* === GUI Mode === */
+        .section { margin-bottom: 20px; }
+        .section-title { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: #484f58; margin-bottom: 8px; }
+
+        .btn-group { display: flex; gap: 6px; flex-wrap: wrap; }
+        .btn {
+            padding: 8px 14px;
+            border: 2px solid #30363d;
+            border-radius: 6px;
+            background: #161b22;
+            color: #8b949e;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.15s;
+        }
+        .btn:hover { border-color: #4a9eff; color: #e6edf3; }
+        .btn.active { border-color: #4a9eff; background: #1a3a6b; color: #fff; }
+
+        .cards-selected {
+            display: flex; gap: 10px; justify-content: center; margin-bottom: 12px; min-height: 72px; align-items: center;
+        }
+        .card-display {
+            width: 50px; height: 70px; border-radius: 8px; background: #fff;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.2rem; font-weight: 700; border: 3px solid #ffd700;
+        }
+        .card-display.red { color: #d32f2f; }
+        .card-display.black { color: #222; }
+        .card-display.empty { background: #21262d; border: 3px dashed #484f58; color: #484f58; font-size: 1.5rem; }
+
+        .suit-tabs { display: flex; gap: 6px; margin-bottom: 10px; }
+        .suit-tab {
+            padding: 6px 14px; border: 2px solid #30363d; border-radius: 6px;
+            background: #161b22; cursor: pointer; font-size: 1.1rem; transition: all 0.15s;
+        }
+        .suit-tab:hover { border-color: #4a9eff; }
+        .suit-tab.active { border-color: #4a9eff; background: #1a3a6b; }
+
+        .cards-grid {
+            display: grid; grid-template-columns: repeat(13, 1fr); gap: 4px;
+        }
+        .card-btn {
+            aspect-ratio: 0.72; border: 2px solid #30363d; border-radius: 5px;
+            background: #161b22; cursor: pointer; font-size: 0.75rem; font-weight: 600;
+            display: flex; align-items: center; justify-content: center; transition: all 0.15s;
+            color: #8b949e;
+        }
+        .card-btn:hover { border-color: #4a9eff; color: #e6edf3; }
+        .card-btn.selected { border-color: #ffd700; background: #3d3200; color: #ffd700; }
+        .card-btn.red { color: #f85149; }
+        .card-btn.red.selected { color: #ffd700; }
+
+        .gui-result {
+            background: #161b22; border: 2px solid #30363d; border-radius: 10px;
+            padding: 20px; text-align: center; min-height: 80px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .gui-result.raise { border-color: #3fb950; background: #0d2818; }
+        .gui-result.call { border-color: #d29922; background: #2d2000; }
+        .gui-result.fold { border-color: #f85149; background: #2d0f0f; }
+        .gui-result-action { font-size: 1.8rem; font-weight: 800; }
+        .gui-result-action.raise { color: #3fb950; }
+        .gui-result-action.call { color: #d29922; }
+        .gui-result-action.fold { color: #f85149; }
+        .gui-result-detail { color: #8b949e; font-size: 0.85rem; margin-top: 4px; }
+        .gui-result-hand { color: #4a9eff; font-size: 0.8rem; margin-bottom: 4px; }
+
+        .reset-btn {
+            display: block; margin: 12px auto 0; padding: 8px 20px; border: none; border-radius: 6px;
+            background: #21262d; color: #8b949e; cursor: pointer; font-size: 0.85rem; transition: background 0.15s;
+        }
+        .reset-btn:hover { background: #30363d; color: #e6edf3; }
+
+        /* === Quiz Mode === */
+        .quiz-question {
+            background: #161b22;
+            border: 2px solid #30363d;
+            border-radius: 10px;
+            padding: 24px;
+            text-align: center;
+            margin-bottom: 16px;
+        }
+        .quiz-situation { color: #8b949e; font-size: 0.85rem; margin-bottom: 8px; }
+        .quiz-position { color: #4a9eff; font-size: 1.1rem; font-weight: 700; margin-bottom: 12px; }
+        .quiz-hand { font-size: 2.2rem; font-weight: 800; letter-spacing: 2px; }
+        .quiz-hand .red { color: #f85149; }
+
+        .quiz-buttons {
+            display: flex; gap: 10px; justify-content: center; margin-bottom: 16px;
+        }
+        .quiz-btn {
+            padding: 14px 28px;
+            border: 2px solid #30363d;
+            border-radius: 8px;
+            background: #161b22;
+            color: #e6edf3;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 700;
+            transition: all 0.15s;
+            min-width: 100px;
+        }
+        .quiz-btn:hover { transform: scale(1.05); }
+        .quiz-btn.raise-btn { border-color: #3fb950; color: #3fb950; }
+        .quiz-btn.raise-btn:hover { background: #0d2818; }
+        .quiz-btn.call-btn { border-color: #d29922; color: #d29922; }
+        .quiz-btn.call-btn:hover { background: #2d2000; }
+        .quiz-btn.fold-btn { border-color: #f85149; color: #f85149; }
+        .quiz-btn.fold-btn:hover { background: #2d0f0f; }
+
+        .quiz-feedback {
+            background: #161b22;
+            border: 2px solid #30363d;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            min-height: 80px;
+            max-height: 70vh;
+            overflow-y: auto;
+            margin-bottom: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+        }
+        .quiz-feedback.correct { border-color: #3fb950; background: #0d2818; }
+        .quiz-feedback.wrong { border-color: #f85149; background: #2d0f0f; }
+        .quiz-feedback-text { font-size: 1.4rem; font-weight: 800; }
+        .quiz-feedback-text.correct { color: #3fb950; }
+        .quiz-feedback-text.wrong { color: #f85149; }
+        .quiz-feedback-detail { color: #8b949e; font-size: 0.85rem; margin-top: 6px; }
+
+        .quiz-score {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+            margin-bottom: 16px;
+        }
+        .quiz-score-label { color: #8b949e; }
+        .quiz-score-value { font-weight: 700; color: #e6edf3; }
+        .quiz-score-streak { color: #ffd700; }
+
+        .quiz-settings {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 16px;
+            font-size: 0.8rem;
+            color: #8b949e;
+        }
+        .quiz-settings-title { font-weight: 600; color: #e6edf3; margin-bottom: 8px; }
+        .quiz-settings .btn-group { margin-top: 6px; margin-bottom: 10px; }
+        .quiz-settings .btn { padding: 6px 10px; font-size: 0.8rem; }
+
+        .quiz-next-btn {
+            padding: 12px 24px;
+            border: 2px solid #4a9eff;
+            border-radius: 8px;
+            background: #161b22;
+            color: #4a9eff;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 700;
+            transition: all 0.15s;
+            margin-top: 10px;
+        }
+        .quiz-next-btn:hover { background: #1a3a6b; color: #fff; }
+
+        .quiz-shortcut {
+            color: #484f58;
+            font-size: 0.75rem;
+            margin-top: 8px;
+            text-align: center;
+        }
+        .quiz-shortcut kbd {
+            background: #21262d;
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: #8b949e;
+        }
+
+        @media (max-width: 500px) {
+            body { padding: 10px; }
+            .container { max-width: 100%; }
+            h1 { font-size: 1.2rem; }
+            .tabs { gap: 2px; padding: 3px; }
+            .tab { padding: 8px 4px; font-size: 0.8rem; }
+            .tab kbd { display: none; }
+            .cards-grid { grid-template-columns: repeat(7, 1fr); gap: 3px; }
+            .card-btn { font-size: 0.7rem; }
+            .btn { padding: 6px 10px; font-size: 0.8rem; }
+            .btn-group { gap: 4px; }
+            .suit-tabs { gap: 4px; }
+            .suit-tab { padding: 6px 10px; font-size: 1rem; }
+            .cards-selected { min-height: 60px; gap: 8px; }
+            .card-display { width: 42px; height: 60px; font-size: 1rem; }
+            .cli-input-area { padding: 12px; }
+            #cliInput { font-size: 1rem; }
+            .quiz-question { padding: 16px; }
+            .quiz-hand { font-size: 1.8rem; }
+            .quiz-position { font-size: 1rem; }
+            .quiz-buttons { gap: 8px; }
+            .quiz-btn { padding: 14px 16px; font-size: 1rem; min-width: 70px; }
+            .quiz-feedback { padding: 16px; }
+            .quiz-feedback-text { font-size: 1.2rem; }
+            .quiz-settings .btn { padding: 5px 8px; font-size: 0.75rem; }
+            .gui-result { padding: 14px; }
+            .gui-result-action { font-size: 1.4rem; }
+            .help-box { padding: 12px; font-size: 0.75rem; }
+            .history { max-height: 120px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>프리플랍 어드바이저</h1>
+        <p class="subtitle">6-Max 기준 · Tab으로 모드 전환</p>
+
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('cli')">타이핑 <kbd>1</kbd></div>
+            <div class="tab" onclick="switchTab('gui')">클릭 <kbd>2</kbd></div>
+            <div class="tab" onclick="switchTab('quiz')">퀴즈 <kbd>3</kbd></div>
+        </div>
+
+        <!-- CLI Panel -->
+        <div class="panel active" id="cliPanel">
+            <div class="cli-input-area">
+                <div class="prompt-line">
+                    <span class="prompt-symbol">></span>
+                    <input type="text" id="cliInput" placeholder="utg aks" autofocus autocomplete="off" spellcheck="false">
+                </div>
+            </div>
+
+            <div class="cli-result" id="cliResult">
+                <div style="color: #484f58;">입력 대기중...</div>
+            </div>
+
+            <div class="history" id="history"></div>
+
+            <div class="help-box">
+                <strong>사용법:</strong> <code>[포지션] [핸드]</code> 입력 후 Enter<br><br>
+                <strong>포지션:</strong> <code>utg</code> <code>mp</code> <code>co</code> <code>btn</code> <code>sb</code> <code>bb</code><br>
+                <strong>핸드:</strong> 페어 <code>aa</code> · 수티드 <code>aks</code> · 오프수트 <code>ako</code><br>
+                <strong>vs 레이즈:</strong> 앞에 <code>v</code> → <span class="example">v co aks</span><br><br>
+                <span class="example">utg aqs</span> · <span class="example">btn 77</span> · <span class="example">v bb ajo</span>
+            </div>
+        </div>
+
+        <!-- GUI Panel -->
+        <div class="panel" id="guiPanel">
+            <div class="section">
+                <div class="section-title">포지션</div>
+                <div class="btn-group" id="guiPositions"></div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">상황</div>
+                <div class="btn-group" id="guiFacing"></div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">내 카드 (2장)</div>
+                <div class="cards-selected" id="guiSelectedCards"></div>
+                <div class="suit-tabs" id="guiSuitTabs"></div>
+                <div class="cards-grid" id="guiCardsGrid"></div>
+            </div>
+
+            <div class="gui-result" id="guiResult">
+                <div style="color: #484f58;">포지션과 카드 2장을 선택하세요</div>
+            </div>
+
+            <button class="reset-btn" onclick="guiReset()">초기화</button>
+        </div>
+
+        <!-- Quiz Panel -->
+        <div class="panel" id="quizPanel">
+            <div class="quiz-score" id="quizScore">
+                <span class="quiz-score-label">점수: <span class="quiz-score-value" id="quizScoreValue">0 / 0</span></span>
+                <span class="quiz-score-label">정답률: <span class="quiz-score-value" id="quizAccuracy">-</span></span>
+                <span class="quiz-score-streak" id="quizStreak"></span>
+            </div>
+
+            <div class="quiz-question" id="quizQuestion">
+                <div style="color: #484f58;">아래에서 설정 후 시작하세요</div>
+            </div>
+
+            <div class="quiz-buttons" id="quizButtons" style="display:none;">
+                <button class="quiz-btn raise-btn" onclick="quizAnswer('raise')">RAISE</button>
+                <button class="quiz-btn call-btn" onclick="quizAnswer('call')">CALL</button>
+                <button class="quiz-btn fold-btn" onclick="quizAnswer('fold')">FOLD</button>
+            </div>
+
+            <div class="quiz-shortcut" id="quizShortcut" style="display:none;">
+                <kbd>R</kbd> 레이즈 · <kbd>C</kbd> 콜 · <kbd>F</kbd> 폴드 · <kbd>N</kbd> 다음
+            </div>
+
+            <div class="quiz-feedback" id="quizFeedback" style="display:none;"></div>
+
+            <div class="quiz-settings" id="quizSettings">
+                <div class="quiz-settings-title">퀴즈 설정</div>
+
+                <div style="margin-bottom: 6px;">포지션:</div>
+                <div class="btn-group" id="quizPosSettings"></div>
+
+                <div style="margin-top: 12px; margin-bottom: 6px;">상황:</div>
+                <div class="btn-group" id="quizFacingSettings"></div>
+
+                <div style="margin-top: 12px; margin-bottom: 6px;">난이도:</div>
+                <div class="btn-group" id="quizDiffSettings"></div>
+
+                <button class="quiz-next-btn" onclick="quizStart()" style="margin-top: 16px; width: 100%;">퀴즈 시작</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // === Shared Data ===
+        const OPEN_RANGES = {
+            UTG: {
+                raise: ['AA','KK','QQ','JJ','TT','AKs','AQs','AJs','ATs','KQs','KJs','QJs','AKo','AQo'],
+                call: ['99','88','77','A9s','A8s','A5s','A4s','A3s','A2s','KTs','QTs','JTs','T9s','98s','AJo']
+            },
+            MP: {
+                raise: ['AA','KK','QQ','JJ','TT','99','AKs','AQs','AJs','ATs','A9s','KQs','KJs','KTs','QJs','QTs','JTs','AKo','AQo','AJo','KQo'],
+                call: ['88','77','66','A8s','A7s','A5s','A4s','A3s','A2s','T9s','98s','87s','ATo','KJo']
+            },
+            CO: {
+                raise: ['AA','KK','QQ','JJ','TT','99','88','77','AKs','AQs','AJs','ATs','A9s','A8s','A7s','A6s','A5s','A4s','A3s','A2s','KQs','KJs','KTs','K9s','QJs','QTs','Q9s','JTs','J9s','T9s','98s','87s','AKo','AQo','AJo','ATo','KQo','KJo','QJo'],
+                call: ['66','55','76s','65s','KTo','QTo','JTo','A9o']
+            },
+            BTN: {
+                raise: ['AA','KK','QQ','JJ','TT','99','88','77','66','55','44','AKs','AQs','AJs','ATs','A9s','A8s','A7s','A6s','A5s','A4s','A3s','A2s','KQs','KJs','KTs','K9s','K8s','K7s','K6s','K5s','QJs','QTs','Q9s','Q8s','JTs','J9s','J8s','T9s','T8s','98s','97s','87s','86s','76s','75s','65s','64s','54s','AKo','AQo','AJo','ATo','A9o','A8o','A7o','KQo','KJo','KTo','K9o','QJo','QTo','Q9o','JTo','J9o','T9o'],
+                call: ['33','22','K4s','K3s','K2s','Q7s','Q6s','J7s','T7s','96s','85s','53s','43s','A6o','A5o','A4o','A3o','A2o','K8o','Q8o','J8o','T8o','98o']
+            },
+            SB: {
+                raise: ['AA','KK','QQ','JJ','TT','99','88','77','66','AKs','AQs','AJs','ATs','A9s','A8s','A7s','A6s','A5s','A4s','A3s','A2s','KQs','KJs','KTs','K9s','K8s','QJs','QTs','Q9s','JTs','J9s','T9s','98s','87s','76s','AKo','AQo','AJo','ATo','A9o','KQo','KJo','KTo','QJo','QTo','JTo'],
+                call: ['55','44','33','K7s','K6s','K5s','Q8s','J8s','T8s','97s','86s','75s','65s','54s','A8o','A7o','K9o','Q9o','J9o','T9o']
+            },
+            BB: {
+                raise: ['AA','KK','QQ','JJ','TT','99','AKs','AQs','AJs','ATs','KQs','KJs','AKo','AQo'],
+                call: ['88','77','66','55','44','33','22','A9s','A8s','A7s','A6s','A5s','A4s','A3s','A2s','KTs','K9s','K8s','K7s','K6s','K5s','QJs','QTs','Q9s','Q8s','Q7s','JTs','J9s','J8s','J7s','T9s','T8s','T7s','98s','97s','96s','87s','86s','76s','75s','65s','64s','54s','53s','43s','AJo','ATo','A9o','A8o','A7o','A6o','A5o','A4o','A3o','A2o','KQo','KJo','KTo','K9o','K8o','QJo','QTo','Q9o','JTo','J9o','T9o','98o','87o']
+            }
+        };
+
+        const VS_RAISE_RANGES = {
+            UTG: { raise: ['AA','KK','QQ','AKs'], call: ['JJ','TT','99','AQs','AJs','AKo','KQs'] },
+            MP: { raise: ['AA','KK','QQ','AKs','AKo'], call: ['JJ','TT','99','88','AQs','AJs','ATs','KQs','AQo'] },
+            CO: { raise: ['AA','KK','QQ','JJ','AKs','AKo','AQs'], call: ['TT','99','88','77','AJs','ATs','KQs','KJs','QJs','AQo','AJo','KQo'] },
+            BTN: { raise: ['AA','KK','QQ','JJ','TT','AKs','AQs','AKo'], call: ['99','88','77','66','AJs','ATs','A9s','A5s','KQs','KJs','KTs','QJs','QTs','JTs','T9s','98s','AQo','AJo','KQo','KJo'] },
+            SB: { raise: ['AA','KK','QQ','JJ','AKs','AQs','AKo'], call: ['TT','99','88','77','AJs','ATs','KQs','KJs','QJs','JTs','AQo','AJo','KQo'] },
+            BB: { raise: ['AA','KK','QQ','JJ','TT','AKs','AQs','AKo'], call: ['99','88','77','66','55','44','33','22','AJs','ATs','A9s','A8s','A7s','A6s','A5s','A4s','A3s','A2s','KQs','KJs','KTs','K9s','QJs','QTs','Q9s','JTs','J9s','T9s','98s','87s','76s','65s','AQo','AJo','ATo','KQo','KJo','QJo','JTo'] }
+        };
+
+        const POSITIONS = ['UTG','MP','CO','BTN','SB','BB'];
+        const FACINGS = ['오픈(첫 레이즈)','vs 레이즈'];
+        const RANKS = ['A','K','Q','J','T','9','8','7','6','5','4','3','2'];
+        const SUITS = [
+            { symbol: '♠', color: 'black' },
+            { symbol: '♥', color: 'red' },
+            { symbol: '♦', color: 'red' },
+            { symbol: '♣', color: 'black' }
+        ];
+
+        const POSITION_ALIASES = {
+            'utg':'UTG','u':'UTG','mp':'MP','m':'MP','co':'CO','c':'CO',
+            'btn':'BTN','b':'BTN','bu':'BTN','sb':'SB','bb':'BB'
+        };
+
+        // === Tab switching ===
+        let currentTab = 'cli';
+
+        function switchTab(tab) {
+            currentTab = tab;
+            document.querySelectorAll('.tab').forEach((t, i) => {
+                t.classList.toggle('active', (i === 0 && tab === 'cli') || (i === 1 && tab === 'gui') || (i === 2 && tab === 'quiz'));
+            });
+            document.getElementById('cliPanel').classList.toggle('active', tab === 'cli');
+            document.getElementById('guiPanel').classList.toggle('active', tab === 'gui');
+            document.getElementById('quizPanel').classList.toggle('active', tab === 'quiz');
+            if (tab === 'cli') document.getElementById('cliInput').focus();
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.target.tagName === 'INPUT') return;
+            if (e.key === '1') switchTab('cli');
+            if (e.key === '2') switchTab('gui');
+            if (e.key === '3') switchTab('quiz');
+
+            if (currentTab === 'quiz' && quizState.active) {
+                if (quizState.answered) {
+                    if (e.key === 'n' || e.key === 'N' || e.key === ' ') quizNext();
+                } else {
+                    if (e.key === 'r' || e.key === 'R') quizAnswer('raise');
+                    if (e.key === 'c' || e.key === 'C') quizAnswer('call');
+                    if (e.key === 'f' || e.key === 'F') quizAnswer('fold');
+                }
+            }
+        });
+
+        // === CLI Mode ===
+        let cliHistory = [];
+
+        document.getElementById('cliInput').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                cliProcess(e.target.value.trim());
+                e.target.value = '';
+            }
+        });
+
+        function cliProcess(raw) {
+            if (!raw) return;
+            let vsRaise = false;
+            let input = raw.toLowerCase();
+            if (input.startsWith('v ')) { vsRaise = true; input = input.slice(2).trim(); }
+
+            const parts = input.split(/\s+/);
+            if (parts.length !== 2) { cliError('형식: [포지션] [핸드]  예: utg aks'); return; }
+
+            const position = POSITION_ALIASES[parts[0]];
+            if (!position) { cliError('포지션: utg, mp, co, btn, sb, bb'); return; }
+
+            const hand = normalizeHand(parts[1]);
+            if (!hand) { cliError('핸드: aa, aks, kqo 형식'); return; }
+
+            const result = getAction(position, hand, vsRaise);
+            const el = document.getElementById('cliResult');
+            el.className = 'cli-result ' + result.className;
+            el.innerHTML = `<div class="cli-result-action ${result.className}">${result.action}</div><div class="cli-result-detail">${position} · ${hand} · ${vsRaise ? 'vs Raise' : 'Open'}</div>`;
+
+            cliHistory.unshift({ cmd: raw, action: result.action, className: result.className });
+            if (cliHistory.length > 10) cliHistory.pop();
+            document.getElementById('history').innerHTML = cliHistory.map(h =>
+                `<div class="history-item"><span class="cmd">${h.cmd}</span><span class="act ${h.className}">${h.action}</span></div>`
+            ).join('');
+        }
+
+        function cliError(msg) {
+            const el = document.getElementById('cliResult');
+            el.className = 'cli-result';
+            el.innerHTML = `<div style="color: #f85149;">${msg}</div>`;
+        }
+
+        // === GUI Mode ===
+        let gui = { position: null, facing: 0, suit: 0, cards: [] };
+
+        function guiInit() {
+            const posEl = document.getElementById('guiPositions');
+            posEl.innerHTML = POSITIONS.map((p, i) => `<div class="btn" onclick="guiSelectPos(${i})">${p}</div>`).join('');
+
+            const facEl = document.getElementById('guiFacing');
+            facEl.innerHTML = FACINGS.map((f, i) => `<div class="btn${i===0?' active':''}" onclick="guiSelectFacing(${i})">${f}</div>`).join('');
+
+            guiRenderSuits();
+            guiRenderCards();
+            guiRenderSelected();
+        }
+
+        function guiSelectPos(i) {
+            gui.position = i;
+            const btns = document.getElementById('guiPositions').children;
+            for (let b of btns) b.classList.remove('active');
+            btns[i].classList.add('active');
+            guiEvaluate();
+        }
+
+        function guiSelectFacing(i) {
+            gui.facing = i;
+            const btns = document.getElementById('guiFacing').children;
+            for (let b of btns) b.classList.remove('active');
+            btns[i].classList.add('active');
+            guiEvaluate();
+        }
+
+        function guiRenderSuits() {
+            document.getElementById('guiSuitTabs').innerHTML = SUITS.map((s, i) =>
+                `<div class="suit-tab${i===gui.suit?' active':''}" style="color:${s.color==='red'?'#f85149':'#e6edf3'}" onclick="guiSelectSuit(${i})">${s.symbol}</div>`
+            ).join('');
+        }
+
+        function guiSelectSuit(i) {
+            gui.suit = i;
+            guiRenderSuits();
+            guiRenderCards();
+        }
+
+        function guiRenderCards() {
+            const s = SUITS[gui.suit];
+            document.getElementById('guiCardsGrid').innerHTML = RANKS.map(r => {
+                const sel = gui.cards.some(c => c.rank === r && c.suit === gui.suit);
+                return `<div class="card-btn${s.color==='red'?' red':''}${sel?' selected':''}" onclick="guiSelectCard('${r}',${gui.suit})">${r}${s.symbol}</div>`;
+            }).join('');
+        }
+
+        function guiRenderSelected() {
+            let html = '';
+            for (let i = 0; i < 2; i++) {
+                if (gui.cards[i]) {
+                    const c = gui.cards[i];
+                    const s = SUITS[c.suit];
+                    html += `<div class="card-display ${s.color}">${c.rank}${s.symbol}</div>`;
+                } else {
+                    html += `<div class="card-display empty">?</div>`;
+                }
+            }
+            document.getElementById('guiSelectedCards').innerHTML = html;
+        }
+
+        function guiSelectCard(rank, suit) {
+            const idx = gui.cards.findIndex(c => c.rank === rank && c.suit === suit);
+            if (idx !== -1) {
+                gui.cards.splice(idx, 1);
+            } else if (gui.cards.length < 2) {
+                gui.cards.push({ rank, suit });
+            } else {
+                gui.cards[1] = { rank, suit };
+            }
+            guiRenderCards();
+            guiRenderSelected();
+            guiEvaluate();
+        }
+
+        function guiEvaluate() {
+            const el = document.getElementById('guiResult');
+            if (gui.position === null || gui.cards.length !== 2) {
+                el.className = 'gui-result';
+                el.innerHTML = '<div style="color: #484f58;">포지션과 카드 2장을 선택하세요</div>';
+                return;
+            }
+
+            const hand = getHandNotation(gui.cards);
+            const pos = POSITIONS[gui.position];
+            const vsRaise = gui.facing === 1;
+            const result = getAction(pos, hand, vsRaise);
+
+            el.className = 'gui-result ' + result.className;
+            el.innerHTML = `<div class="gui-result-hand">${hand} · ${pos} · ${vsRaise ? 'vs Raise' : 'Open'}</div><div class="gui-result-action ${result.className}">${result.action}</div>`;
+        }
+
+        function guiReset() {
+            gui = { position: null, facing: 0, suit: 0, cards: [] };
+            guiInit();
+            document.getElementById('guiResult').className = 'gui-result';
+            document.getElementById('guiResult').innerHTML = '<div style="color: #484f58;">포지션과 카드 2장을 선택하세요</div>';
+        }
+
+        // === Quiz Mode ===
+        let quizState = {
+            active: false,
+            answered: false,
+            correct: 0,
+            total: 0,
+            streak: 0,
+            bestStreak: 0,
+            positions: ['UTG','MP','CO','BTN','SB','BB'],
+            facing: 'both',
+            difficulty: 'all',
+            currentHand: null,
+            currentPos: null,
+            currentVsRaise: false,
+            currentAnswer: null
+        };
+
+        function quizInitSettings() {
+            const posEl = document.getElementById('quizPosSettings');
+            posEl.innerHTML = `<div class="btn active" onclick="quizTogglePos(this, 'all')">전체</div>` +
+                POSITIONS.map(p => `<div class="btn active" onclick="quizTogglePos(this, '${p}')">${p}</div>`).join('');
+
+            const facEl = document.getElementById('quizFacingSettings');
+            facEl.innerHTML = `
+                <div class="btn active" onclick="quizSetFacing(this, 'both')">둘 다</div>
+                <div class="btn" onclick="quizSetFacing(this, 'open')">오픈만</div>
+                <div class="btn" onclick="quizSetFacing(this, 'vs')">vs 레이즈만</div>
+            `;
+
+            const diffEl = document.getElementById('quizDiffSettings');
+            diffEl.innerHTML = `
+                <div class="btn active" onclick="quizSetDiff(this, 'all')">전체 핸드</div>
+                <div class="btn" onclick="quizSetDiff(this, 'border')">경계 핸드만</div>
+            `;
+        }
+
+        function quizTogglePos(el, pos) {
+            if (pos === 'all') {
+                const allActive = el.classList.contains('active');
+                const btns = el.parentElement.children;
+                for (let b of btns) {
+                    if (allActive) b.classList.remove('active');
+                    else b.classList.add('active');
+                }
+                if (allActive) quizState.positions = [];
+                else quizState.positions = [...POSITIONS];
+            } else {
+                el.classList.toggle('active');
+                const allBtn = el.parentElement.children[0];
+                quizState.positions = [];
+                const btns = el.parentElement.children;
+                for (let i = 1; i < btns.length; i++) {
+                    if (btns[i].classList.contains('active')) quizState.positions.push(POSITIONS[i-1]);
+                }
+                allBtn.classList.toggle('active', quizState.positions.length === 6);
+            }
+        }
+
+        function quizSetFacing(el, val) {
+            quizState.facing = val;
+            const btns = el.parentElement.children;
+            for (let b of btns) b.classList.remove('active');
+            el.classList.add('active');
+        }
+
+        function quizSetDiff(el, val) {
+            quizState.difficulty = val;
+            const btns = el.parentElement.children;
+            for (let b of btns) b.classList.remove('active');
+            el.classList.add('active');
+        }
+
+        function quizStart() {
+            if (quizState.positions.length === 0) {
+                alert('포지션을 최소 하나 선택하세요');
+                return;
+            }
+            quizState.active = true;
+            quizState.correct = 0;
+            quizState.total = 0;
+            quizState.streak = 0;
+            quizState.bestStreak = 0;
+            document.getElementById('quizSettings').style.display = 'none';
+            document.getElementById('quizButtons').style.display = 'flex';
+            document.getElementById('quizShortcut').style.display = 'block';
+            quizNext();
+        }
+
+        function quizNext() {
+            quizState.answered = false;
+            document.getElementById('quizFeedback').style.display = 'none';
+
+            const pos = quizState.positions[Math.floor(Math.random() * quizState.positions.length)];
+            let vsRaise = false;
+            if (quizState.facing === 'vs') vsRaise = true;
+            else if (quizState.facing === 'both') vsRaise = Math.random() < 0.35;
+
+            let hand;
+            if (quizState.difficulty === 'border') {
+                hand = getBorderHand(pos, vsRaise);
+            } else {
+                hand = getRandomHand();
+            }
+
+            const result = getAction(pos, hand, vsRaise);
+
+            quizState.currentHand = hand;
+            quizState.currentPos = pos;
+            quizState.currentVsRaise = vsRaise;
+            quizState.currentAnswer = result.className;
+
+            const suitSymbols = ['♠','♥','♦','♣'];
+            const r1 = hand[0];
+            const r2 = hand.length >= 2 ? hand[1] : '';
+            const suffix = hand.length === 3 ? hand[2] : '';
+            const displayRank = (r) => r === 'T' ? '10' : r;
+            const dr1 = displayRank(r1), dr2 = displayRank(r2);
+
+            let displayHand;
+            if (suffix === 's') {
+                const s = suitSymbols[Math.floor(Math.random() * 4)];
+                const isRed = (s === '♥' || s === '♦');
+                displayHand = `<span class="${isRed?'red':''}">${dr1}${s}</span> <span class="${isRed?'red':''}">${dr2}${s}</span>`;
+            } else if (suffix === 'o') {
+                const s1idx = Math.floor(Math.random() * 4);
+                let s2idx = (s1idx + 1 + Math.floor(Math.random() * 3)) % 4;
+                const s1 = suitSymbols[s1idx], s2 = suitSymbols[s2idx];
+                const r1red = (s1==='♥'||s1==='♦'), r2red = (s2==='♥'||s2==='♦');
+                displayHand = `<span class="${r1red?'red':''}">${dr1}${s1}</span> <span class="${r2red?'red':''}">${dr2}${s2}</span>`;
+            } else {
+                const s1idx = Math.floor(Math.random() * 4);
+                let s2idx = (s1idx + 1 + Math.floor(Math.random() * 3)) % 4;
+                const s1 = suitSymbols[s1idx], s2 = suitSymbols[s2idx];
+                const r1red = (s1==='♥'||s1==='♦'), r2red = (s2==='♥'||s2==='♦');
+                displayHand = `<span class="${r1red?'red':''}">${dr1}${s1}</span> <span class="${r2red?'red':''}">${dr2}${s2}</span>`;
+            }
+
+            const situationText = vsRaise ? '상대가 레이즈했다. 어떻게 할까?' : '아무도 안 들어왔다. 어떻게 할까?';
+
+            document.getElementById('quizQuestion').innerHTML = `
+                <div class="quiz-situation">${situationText}</div>
+                <div class="quiz-position">${pos}</div>
+                <div class="quiz-hand">${displayHand}</div>
+            `;
+
+            document.getElementById('quizButtons').style.display = 'flex';
+        }
+
+        function getReason(pos, hand, vsRaise, action) {
+            const posNames = { UTG: '얼리(UTG)', MP: '미들(MP)', CO: '레이트(CO)', BTN: '버튼(BTN)', SB: '스몰블라인드', BB: '빅블라인드' };
+            const posName = posNames[pos];
+            const handLen = hand.length;
+            const isPair = handLen === 2;
+            const isSuited = hand.endsWith('s');
+            const r1 = hand[0], r2 = hand[1];
+            const highCards = 'AKQJT';
+            const isHighPair = isPair && highCards.includes(r1);
+            const isBroadway = highCards.includes(r1) && highCards.includes(r2);
+            const rankValues = { 'A':14,'K':13,'Q':12,'J':11,'T':10,'9':9,'8':8,'7':7,'6':6,'5':5,'4':4,'3':3,'2':2 };
+            const isConnector = !isPair && Math.abs(rankValues[r1] - rankValues[r2]) === 1;
+            const isGapped = !isPair && Math.abs(rankValues[r1] - rankValues[r2]) === 2;
+
+            if (action === 'raise') {
+                if (vsRaise) {
+                    if (isPair && 'AKQJ'.includes(r1)) return `${hand}는 프리미엄 페어. ${posName}에서 3-벳으로 주도권 잡기.`;
+                    if (hand === 'AKs' || hand === 'AKo') return `AK는 프리미엄 핸드. 3-벳으로 팟을 키우거나 상대를 폴드시키기.`;
+                    if (hand === 'AQs') return `AQs는 ${posName}에서 3-벳 가능한 강한 핸드. 수티드라 플랍 이후도 유리.`;
+                    return `${hand}는 ${posName}에서 3-벳할 만큼 강한 핸드.`;
+                }
+                if (isHighPair) return `${hand}는 프리미엄 페어. ${posName}에서 당연히 레이즈.`;
+                if (isPair) return `포켓 ${r1}${r2}. ${posName}은 레이트라 미들 페어도 오픈 가능.`;
+                if (hand === 'AKs' || hand === 'AKo') return `AK는 프리플랍 최강 드로잉 핸드. 어떤 포지션에서든 레이즈.`;
+                if (isBroadway && isSuited) return `${r1}${r2} 수티드 브로드웨이. 탑페어/플러시/스트레이트 모두 가능.`;
+                if (isBroadway) return `${r1}${r2} 브로드웨이 카드. ${posName}에서 오픈할 가치 충분.`;
+                if (r1 === 'A' && isSuited) return `A${r2}s. 에이스 수티드는 넛 플러시 가능성 + 하이카드 가치.`;
+                if (isSuited && isConnector) return `${r1}${r2}s 수티드 커넥터. 플러시+스트레이트 양쪽 가능성.`;
+                if (isSuited) return `${hand} 수티드. ${posName}에서 플러시 가능성과 함께 오픈 가능.`;
+                return `${hand}는 ${posName}에서 충분히 오픈할 수 있는 핸드.`;
+            }
+
+            if (action === 'call') {
+                if (vsRaise) {
+                    if (isPair) return `포켓 ${r1}${r2}. 셋 맞추면 큰 팟 딸 수 있어서 콜. (셋마이닝)`;
+                    if (isSuited && (isConnector || isGapped)) return `${hand}. 수티드 커넥터는 멀티웨이에서 임플라이드 오즈 좋음.`;
+                    if (r1 === 'A') return `${hand}. 강하지만 3-벳하기엔 부족. 콜로 플랍 보기.`;
+                    return `${hand}. ${posName}에서 콜은 가능하지만 레이즈하기엔 약함.`;
+                }
+                if (isPair) return `포켓 ${r1}${r2}. 오픈하기엔 ${posName}에서 약간 리스크. 림프/콜 가능.`;
+                if (r1 === 'A' && isSuited) return `${hand}. 넛 플러시 가능성 있지만 ${posName}에서 오픈 레이즈하기엔 경계선.`;
+                if (isSuited && isConnector) return `${hand}. 수티드 커넥터라 가능성은 있지만 ${posName}에서 레이즈는 무리.`;
+                return `${hand}. ${posName}에서 플레이는 가능하지만 강하게 레이즈할 핸드는 아님.`;
+            }
+
+            // fold
+            if (vsRaise) {
+                if (isPair && rankValues[r1] <= 6) return `포켓 ${r1}${r2}. 상대 레이즈 대비 ${posName}에서 너무 약함. 임플라이드 오즈도 부족.`;
+                if (r1 === 'A' && !isSuited) return `${hand} 오프수트. A가 있지만 키커 약하고 수티드도 아니라 위험.`;
+                if (isBroadway && !isSuited) return `${hand} 오프수트. 좋아 보이지만 상대 레이즈 레인지에 지배당하기 쉬움.`;
+                return `${hand}. ${posName}에서 상대 레이즈를 콜하기엔 너무 약함.`;
+            }
+            if (r1 === 'A' && !isSuited && rankValues[r2] <= 9) return `${hand}. 에이스는 있지만 키커가 약하고 오프수트. ${posName}에서 큰 돈 잃기 쉬움.`;
+            if (isBroadway && !isSuited) return `${hand} 오프수트. 좋아 보이지만 ${posName}에서 도미네이트 당하기 쉬움.`;
+            if (!isSuited && isConnector) return `${hand} 오프수트 커넥터. 수티드가 아니면 가치 부족. ${posName}에서 폴드.`;
+            if (isPair && rankValues[r1] <= 5) return `포켓 ${r1}${r2}. ${posName}에서 셋 못 맞추면 플레이 어려움. 폴드가 안전.`;
+            return `${hand}. ${posName}에서 수익적이지 않은 핸드. 좋은 카드 기다리기.`;
+        }
+
+        function buildRangeTable(pos, vsRaise, currentHand) {
+            const ranges = vsRaise ? VS_RAISE_RANGES[pos] : OPEN_RANGES[pos];
+            const allRanks = ['A','K','Q','J','T','9','8','7','6','5','4','3','2'];
+            let html = '<div style="overflow-x:auto; margin-top:12px; width:100%;">';
+            html += '<table style="border-collapse:collapse; font-size:0.6rem; min-width:280px; width:100%;">';
+            html += '<tr><td style="width:20px;"></td>';
+            for (const r of allRanks) html += `<td style="text-align:center;padding:1px 2px;color:#8b949e;font-size:0.55rem;">${r==='T'?'10':r}</td>`;
+            html += '</tr>';
+            for (let i = 0; i < 13; i++) {
+                html += `<tr><td style="padding:1px 2px;color:#8b949e;font-size:0.55rem;">${allRanks[i]==='T'?'10':allRanks[i]}</td>`;
+                for (let j = 0; j < 13; j++) {
+                    let hand;
+                    if (i === j) hand = allRanks[i] + allRanks[j];
+                    else if (j > i) hand = allRanks[i] + allRanks[j] + 's';
+                    else hand = allRanks[j] + allRanks[i] + 'o';
+
+                    let bg = '#161b22', color = '#484f58';
+                    if (ranges.raise.includes(hand)) { bg = '#1a3d1a'; color = '#3fb950'; }
+                    else if (ranges.call.includes(hand)) { bg = '#2d2000'; color = '#d29922'; }
+
+                    const isCurrent = hand === currentHand;
+                    const border = isCurrent ? 'border:2px solid #fff;' : 'border:1px solid #21262d;';
+                    const label = (i === j) ? allRanks[i] + allRanks[j] : (j > i ? allRanks[i] + allRanks[j] + 's' : allRanks[j] + allRanks[i] + 'o');
+                    const shortLabel = label.replace('10','T');
+                    html += `<td style="text-align:center;padding:2px 1px;background:${bg};color:${color};${border}font-weight:${isCurrent?'800':'400'};border-radius:2px;">${shortLabel}</td>`;
+                }
+                html += '</tr>';
+            }
+            html += '</table></div>';
+            html += '<div style="margin-top:6px;font-size:0.65rem;color:#8b949e;"><span style="color:#3fb950;">■</span> 레이즈 <span style="color:#d29922;">■</span> 콜 <span style="color:#484f58;">■</span> 폴드 <span style="border:1px solid #fff;padding:0 3px;">□</span> 현재 핸드</div>';
+            return html;
+        }
+
+        function quizAnswer(answer) {
+            if (quizState.answered) return;
+            quizState.answered = true;
+            quizState.total++;
+
+            const correct = answer === quizState.currentAnswer;
+            if (correct) {
+                quizState.correct++;
+                quizState.streak++;
+                if (quizState.streak > quizState.bestStreak) quizState.bestStreak = quizState.streak;
+            } else {
+                quizState.streak = 0;
+            }
+
+            const actionLabels = { raise: 'RAISE', call: 'CALL', fold: 'FOLD' };
+            const reason = getReason(quizState.currentPos, quizState.currentHand, quizState.currentVsRaise, quizState.currentAnswer);
+            const rangeTable = buildRangeTable(quizState.currentPos, quizState.currentVsRaise, quizState.currentHand);
+            const el = document.getElementById('quizFeedback');
+            el.style.display = 'flex';
+            el.className = 'quiz-feedback ' + (correct ? 'correct' : 'wrong');
+
+            if (correct) {
+                el.innerHTML = `
+                    <div class="quiz-feedback-text correct">정답!</div>
+                    <div class="quiz-feedback-detail">${quizState.currentPos} · ${quizState.currentHand} → ${actionLabels[quizState.currentAnswer]}</div>
+                    <div class="quiz-feedback-detail" style="margin-top:8px; color:#7ee787;">${reason}</div>
+                    ${rangeTable}
+                    <button class="quiz-next-btn" onclick="quizNext()">다음 문제 (N)</button>
+                `;
+            } else {
+                el.innerHTML = `
+                    <div class="quiz-feedback-text wrong">오답</div>
+                    <div class="quiz-feedback-detail">
+                        정답: <strong>${actionLabels[quizState.currentAnswer]}</strong><br>
+                        ${quizState.currentPos} · ${quizState.currentHand} · ${quizState.currentVsRaise ? 'vs Raise' : 'Open'}
+                    </div>
+                    <div class="quiz-feedback-detail" style="margin-top:8px; color:#f0883e;">${reason}</div>
+                    ${rangeTable}
+                    <button class="quiz-next-btn" onclick="quizNext()">다음 문제 (N)</button>
+                `;
+            }
+
+            document.getElementById('quizButtons').style.display = 'none';
+            updateQuizScore();
+        }
+
+        function updateQuizScore() {
+            document.getElementById('quizScoreValue').textContent = `${quizState.correct} / ${quizState.total}`;
+            const pct = quizState.total > 0 ? Math.round(quizState.correct / quizState.total * 100) : 0;
+            document.getElementById('quizAccuracy').textContent = `${pct}%`;
+            document.getElementById('quizStreak').textContent = quizState.streak > 1 ? `${quizState.streak} 연속!` : '';
+        }
+
+        function getRandomHand() {
+            const r = Math.random();
+            if (r < 0.077) {
+                const rank = RANKS[Math.floor(Math.random() * 13)];
+                return rank + rank;
+            } else if (r < 0.54) {
+                let r1 = Math.floor(Math.random() * 13);
+                let r2 = Math.floor(Math.random() * 13);
+                while (r1 === r2) r2 = Math.floor(Math.random() * 13);
+                if (r1 > r2) [r1, r2] = [r2, r1];
+                return RANKS[r1] + RANKS[r2] + 's';
+            } else {
+                let r1 = Math.floor(Math.random() * 13);
+                let r2 = Math.floor(Math.random() * 13);
+                while (r1 === r2) r2 = Math.floor(Math.random() * 13);
+                if (r1 > r2) [r1, r2] = [r2, r1];
+                return RANKS[r1] + RANKS[r2] + 'o';
+            }
+        }
+
+        function getBorderHand(pos, vsRaise) {
+            const ranges = vsRaise ? VS_RAISE_RANGES[pos] : OPEN_RANGES[pos];
+            const allBorder = [...ranges.raise.slice(-3), ...ranges.call];
+
+            const foldHands = [];
+            for (let i = 0; i < RANKS.length; i++) {
+                for (let j = i; j < RANKS.length; j++) {
+                    if (i === j) {
+                        const h = RANKS[i] + RANKS[j];
+                        if (!ranges.raise.includes(h) && !ranges.call.includes(h)) foldHands.push(h);
+                    } else {
+                        const hs = RANKS[i] + RANKS[j] + 's';
+                        const ho = RANKS[i] + RANKS[j] + 'o';
+                        if (!ranges.raise.includes(hs) && !ranges.call.includes(hs)) foldHands.push(hs);
+                        if (!ranges.raise.includes(ho) && !ranges.call.includes(ho)) foldHands.push(ho);
+                    }
+                }
+            }
+
+            const borderFolds = foldHands.slice(0, 10);
+            const pool = [...allBorder, ...borderFolds];
+            return pool[Math.floor(Math.random() * pool.length)];
+        }
+
+        // === Shared Logic ===
+        function getAction(position, hand, vsRaise) {
+            const ranges = vsRaise ? VS_RAISE_RANGES[position] : OPEN_RANGES[position];
+            if (ranges.raise.includes(hand)) {
+                return { action: vsRaise ? '3-BET' : 'RAISE', className: 'raise' };
+            } else if (ranges.call.includes(hand)) {
+                return { action: 'CALL', className: 'call' };
+            }
+            return { action: 'FOLD', className: 'fold' };
+        }
+
+        function normalizeHand(raw) {
+            if (raw.length < 2 || raw.length > 3) return null;
+            const rm = {'a':'A','k':'K','q':'Q','j':'J','t':'T','2':'2','3':'3','4':'4','5':'5','6':'6','7':'7','8':'8','9':'9'};
+            let r1 = rm[raw[0]], r2 = rm[raw[1]];
+            if (!r1 || !r2) return null;
+            if (raw.length === 2) return r1 === r2 ? r1+r2 : null;
+            let suffix = raw[2];
+            if (suffix !== 's' && suffix !== 'o') return null;
+            const order = 'AKQJT98765432';
+            if (order.indexOf(r1) > order.indexOf(r2)) [r1, r2] = [r2, r1];
+            return r1 + r2 + suffix;
+        }
+
+        function getHandNotation(cards) {
+            const order = 'AKQJT98765432';
+            let r1 = cards[0].rank, r2 = cards[1].rank;
+            if (order.indexOf(r1) > order.indexOf(r2)) [r1, r2] = [r2, r1];
+            if (r1 === r2) return r1 + r2;
+            return r1 + r2 + (cards[0].suit === cards[1].suit ? 's' : 'o');
+        }
+
+        // Init
+        guiInit();
+        quizInitSettings();
+    </script>
+</body>
+</html>
