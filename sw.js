@@ -1,10 +1,10 @@
 const CACHE_NAME = 'holdem-v2';
 const ASSETS = [
-  '/holdem/',
-  '/holdem/index.html',
-  '/holdem/manifest.json',
-  '/holdem/icon-192.png',
-  '/holdem/icon-512.png'
+  '/holdemssam/',
+  '/holdemssam/index.html',
+  '/holdemssam/manifest.json',
+  '/holdemssam/icon-192.png',
+  '/holdemssam/icon-512.png'
 ];
 
 self.addEventListener('install', (e) => {
