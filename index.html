@@ -8,7 +8,7 @@
     <meta name="theme-color" content="#0d1117">
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon-192.png">
-    <title>홀덤 트레이너</title>
+    <title>홀덤쌤 — HoldemSsam</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -222,6 +222,19 @@
         .history-item .act.call { color: #d29922; }
         .history-item .act.fold { color: #f85149; }
 
+        /* Source note */
+        .source-note {
+            font-size: 0.6rem; color: #484f58; text-align: right;
+            margin-bottom: 6px; font-style: italic;
+        }
+
+        /* Language toggle */
+        .lang-toggle {
+            padding: 4px 10px; border: 1px solid #30363d; border-radius: 4px;
+            background: #161b22; color: #8b949e; cursor: pointer; font-size: 0.7rem; font-weight: 600;
+        }
+        .lang-toggle:hover { border-color: #4a9eff; color: #e6edf3; }
+
         @media (max-width: 500px) {
             .container { padding: 10px; }
             .cards-grid { grid-template-columns: repeat(7, 1fr); }
@@ -233,8 +246,9 @@
 </head>
 <body>
     <div class="container">
-        <h1>홀덤 트레이너</h1>
-        <p class="subtitle">프리플랍부터 차근차근</p>
+        <div style="display:flex;justify-content:flex-end;margin-bottom:4px;"><button class="lang-toggle" onclick="toggleLang()">EN</button></div>
+        <h1 id="appTitle">홀덤쌤</h1>
+        <p class="subtitle" id="appSub">초보를 위한 홀덤 트레이닝</p>
 
         <!-- ===== 프리플랍 Page ===== -->
         <div class="page active" id="pagePre">
@@ -274,6 +288,7 @@
             </div>
 
             <div class="subpanel" id="pre-quiz">
+                <div class="source-note">기준: 6-Max Cash GTO Preflop Charts (100BB, RFI/vs Raise)</div>
                 <div class="score-bar"><span class="score-label">점수: <span class="score-value" id="pqScore">0/0</span></span><span class="score-label">정답률: <span class="score-value" id="pqAcc">-</span></span><span class="streak-text" id="pqStreak"></span></div>
                 <div class="quiz-card" id="pqCard"><div style="color:#484f58">설정 후 시작</div></div>
                 <div class="quiz-btns" id="pqBtns" style="display:none;">
@@ -297,6 +312,7 @@
 
         <!-- ===== 핸드 랭킹 Page ===== -->
         <div class="page" id="pageRank">
+            <div class="source-note">기준: Official Poker Hand Rankings (WSOP/WPT 공식 규칙)</div>
             <div class="score-bar"><span class="score-label">점수: <span class="score-value" id="hrScore">0/0</span></span><span class="score-label">정답률: <span class="score-value" id="hrAcc">-</span></span><span class="streak-text" id="hrStreak"></span></div>
             <div class="quiz-card" id="hrCard"><div style="color:#484f58">어떤 핸드가 이길까?</div></div>
             <div class="quiz-btns" id="hrBtns" style="display:none;">
@@ -317,6 +333,7 @@
             </div>
 
             <div class="subpanel active" id="outs-practice">
+                <div class="source-note">기준: Standard Outs Count (52장 덱 기본 확률 계산)</div>
                 <div class="score-bar"><span class="score-label">점수: <span class="score-value" id="outScore">0/0</span></span><span class="score-label">정답률: <span class="score-value" id="outAcc">-</span></span></div>
                 <div class="quiz-card" id="outCard"><div style="color:#484f58">아웃츠가 몇 개?</div></div>
                 <div style="text-align:center;margin-bottom:12px;" id="outInput" style="display:none;">
@@ -363,6 +380,204 @@
     </div>
 
     <script>
+    // ============ i18n ============
+    let LANG = localStorage.getItem('holdem-lang') || 'ko';
+
+    const I18N = {
+        ko: {
+            title: '홀덤쌤', subtitle: '초보를 위한 홀덤 트레이닝', langBtn: 'EN',
+            navPre: '프리플랍', navRank: '랭킹', navOuts: '아웃츠', navGloss: '용어',
+            tabTyping: '타이핑', tabClick: '클릭', tabQuiz: '퀴즈', tabPractice: '연습', tabCalc: '계산기',
+            cliPlaceholder: 'utg aks', cliWaiting: '입력 대기중...',
+            position: '포지션', situation: '상황', myCards: '내 카드', open: '오픈', vsRaise: 'vs 레이즈',
+            selectPosCards: '포지션과 카드 선택', reset: '초기화',
+            score: '점수:', accuracy: '정답률:', streak: '연속!',
+            afterSettings: '설정 후 시작', all: '전체', both: '둘 다', openOnly: '오픈만', vsOnly: 'vs만',
+            difficulty: '난이도', allHands: '전체', borderHands: '경계 핸드',
+            startQuiz: '퀴즈 시작', next: '다음', correct: '정답!', wrong: '오답',
+            selectPos: '포지션 선택',
+            raise: 'RAISE', call: 'CALL', fold: 'FOLD',
+            rangeRaise: '레이즈', rangeCall: '콜', rangeFold: '폴드', rangeCurrent: '현재',
+            hrTitle: '어떤 핸드가 이길까?', hrA: 'A 승', hrTie: '무승부', hrB: 'B 승',
+            hrStart: '핸드 랭킹 퀴즈 시작', hrOrder: '강한 순서:',
+            hrRankOrder: '스트레이트 플러시 > 포카드 > 풀하우스 > 플러시 > 스트레이트 > 트리플 > 투페어 > 원페어 > 하이카드',
+            outsQ: '아웃츠는 몇 개?', outsStart: '아웃츠 연습 시작', outsAnswer: '개', confirm: '확인',
+            rule24: '2-4 룰', rule24t: '턴+리버: 아웃츠 × 4 = 확률%', rule24r: '리버만: 아웃츠 × 2 = 확률%',
+            commonOuts: '흔한 아웃츠',
+            flushDraw: '플러시 드로우: 9', openEnd: '오픈엔드: 8', gutshot: '거트샷: 4',
+            twoPairFH: '투페어→풀하우스: 4', onePairTrips: '원페어→트리플: 2',
+            potCalc: '팟 오즈 계산기', pot: '팟', bet: '벳', outs: '아웃츠', calc: '계산',
+            potBetReq: '팟과 벳을 입력하세요', needed: '필요 확률:',
+            callOkRiver: '리버만 남아도 콜 OK', callOkTurn: '턴+리버면 콜 OK', foldMath: '폴드가 수학적으로 맞음',
+            glossSearch: '용어 검색...',
+            river: '리버', turnRiver: '턴+리버',
+            noOneIn: '아무도 안 들어왔다', oppRaised: '상대가 레이즈했다',
+        },
+        en: {
+            title: 'HoldemSsam', subtitle: 'Holdem Training for Beginners', langBtn: '한',
+            navPre: 'Preflop', navRank: 'Ranking', navOuts: 'Outs', navGloss: 'Glossary',
+            tabTyping: 'Type', tabClick: 'Click', tabQuiz: 'Quiz', tabPractice: 'Practice', tabCalc: 'Calculator',
+            cliPlaceholder: 'utg aks', cliWaiting: 'Waiting for input...',
+            position: 'Position', situation: 'Situation', myCards: 'My Cards', open: 'Open', vsRaise: 'vs Raise',
+            selectPosCards: 'Select position and cards', reset: 'Reset',
+            score: 'Score:', accuracy: 'Accuracy:', streak: 'streak!',
+            afterSettings: 'Configure and start', all: 'All', both: 'Both', openOnly: 'Open only', vsOnly: 'vs only',
+            difficulty: 'Difficulty', allHands: 'All', borderHands: 'Borderline',
+            startQuiz: 'Start Quiz', next: 'Next', correct: 'Correct!', wrong: 'Wrong',
+            selectPos: 'Select position',
+            raise: 'RAISE', call: 'CALL', fold: 'FOLD',
+            rangeRaise: 'Raise', rangeCall: 'Call', rangeFold: 'Fold', rangeCurrent: 'Current',
+            hrTitle: 'Which hand wins?', hrA: 'A wins', hrTie: 'Tie', hrB: 'B wins',
+            hrStart: 'Start Ranking Quiz', hrOrder: 'Strongest to weakest:',
+            hrRankOrder: 'Straight Flush > Four of a Kind > Full House > Flush > Straight > Three of a Kind > Two Pair > One Pair > High Card',
+            outsQ: 'How many outs?', outsStart: 'Start Outs Practice', outsAnswer: 'outs', confirm: 'Submit',
+            rule24: 'Rule of 2 & 4', rule24t: 'Turn+River: Outs × 4 = %', rule24r: 'River only: Outs × 2 = %',
+            commonOuts: 'Common Outs',
+            flushDraw: 'Flush draw: 9', openEnd: 'Open-ended: 8', gutshot: 'Gutshot: 4',
+            twoPairFH: 'Two pair→Full house: 4', onePairTrips: 'One pair→Trips: 2',
+            potCalc: 'Pot Odds Calculator', pot: 'Pot', bet: 'Bet', outs: 'Outs', calc: 'Calculate',
+            potBetReq: 'Enter pot and bet', needed: 'Required equity:',
+            callOkRiver: 'Call OK (river only)', callOkTurn: 'Call OK (turn+river)', foldMath: 'Fold is mathematically correct',
+            glossSearch: 'Search terms...',
+            river: 'River', turnRiver: 'Turn+River',
+            noOneIn: 'No one has entered', oppRaised: 'Opponent raised',
+        }
+    };
+
+    const GLOSSARY_EN = [
+        {name:'All-in',desc:'Betting all your remaining chips'},
+        {name:'Ante',desc:'A forced bet all players make before the hand starts (tournaments)'},
+        {name:'Outs',desc:'Cards remaining in the deck that can improve your hand to a winner'},
+        {name:'Open',desc:'The first raise when no one has bet yet'},
+        {name:'Overcard',desc:'A hole card higher than any card on the board'},
+        {name:'Offsuit',desc:'Two cards of different suits'},
+        {name:'Value Bet',desc:'Betting expecting a weaker hand to call'},
+        {name:'Buy-in',desc:'The amount required to join a game'},
+        {name:'Bankroll',desc:'Total funds available for poker'},
+        {name:'Button (BTN)',desc:'Dealer position. Acts last post-flop — the most advantageous seat'},
+        {name:'Blind',desc:'Forced bets. SB and BB post before cards are dealt'},
+        {name:'Bluff',desc:'Betting with a weak hand to make opponents fold'},
+        {name:'Blocker',desc:'A card you hold that reduces the chance your opponent has a specific hand'},
+        {name:'Board',desc:'Community cards on the table (flop + turn + river)'},
+        {name:'Broadway',desc:'T, J, Q, K, A cards. Or a straight made from them'},
+        {name:'Set',desc:'Three of a kind using a pocket pair + one board card'},
+        {name:'Set Mining',desc:'Calling with a pocket pair hoping to hit a set'},
+        {name:'Semi-bluff',desc:'Betting with a draw — win if they fold or if you hit'},
+        {name:'Suited',desc:'Two cards of the same suit'},
+        {name:'Suited Connector',desc:'Consecutive cards of the same suit (e.g., 8♥9♥)'},
+        {name:'Straddle',desc:'A voluntary blind raise from UTG position'},
+        {name:'Stack',desc:'Total chips a player has'},
+        {name:'Steal',desc:'A late position raise to take the blinds'},
+        {name:'Slowplay',desc:'Playing a strong hand weakly to trap opponents'},
+        {name:'C-bet (Continuation Bet)',desc:'When the preflop raiser bets again on the flop'},
+        {name:'Check-raise',desc:'Checking first, then raising when an opponent bets'},
+        {name:'Connector',desc:'Two cards in consecutive rank (e.g., 78, JT)'},
+        {name:'Cold Call',desc:'Calling a raise and re-raise without having previously bet'},
+        {name:'Kicker',desc:'The side card that determines the winner when pairs are equal'},
+        {name:'Tight',desc:'Playing style that plays few hands'},
+        {name:'Turn',desc:'The fourth community card'},
+        {name:'Tell',desc:'A behavior or habit that reveals information about a player\'s hand'},
+        {name:'Tilt',desc:'Playing emotionally and making irrational decisions'},
+        {name:'Three of a Kind',desc:'Three cards of the same rank'},
+        {name:'Draw',desc:'An incomplete hand that needs one or two cards to complete'},
+        {name:'Dominate',desc:'When hands share a card but one has a better kicker (e.g., AK vs AJ)'},
+        {name:'Nuts',desc:'The best possible hand on the current board'},
+        {name:'Nit',desc:'An extremely tight player'},
+        {name:'GTO',desc:'Game Theory Optimal. A strategy that cannot be exploited'},
+        {name:'ICM',desc:'Independent Chip Model. Calculates real value of tournament chips'},
+        {name:'Pot',desc:'Total money bet in the current hand'},
+        {name:'Pot Odds',desc:'Ratio of call cost to pot size. Determines mathematical value of calling'},
+        {name:'Position',desc:'Your place in the betting order. Later position = more advantage'},
+        {name:'Premium Hand',desc:'Top-tier hands like AA, KK, QQ, AK'},
+        {name:'Preflop',desc:'First betting round after receiving 2 hole cards'},
+        {name:'Flop',desc:'Second round where 3 community cards are dealt simultaneously'},
+        {name:'Flush Draw',desc:'Having 4 cards of the same suit, needing 1 more for a flush'},
+        {name:'Fold Equity',desc:'Added value from the chance your bet makes opponents fold'},
+        {name:'Fit or Fold',desc:'Strategy of continuing only if the flop helps your hand'},
+        {name:'Hand Range',desc:'The set of hands a player might have in a given situation'},
+        {name:'Hole Cards',desc:'Your 2 private cards that only you can see'},
+        {name:'EV (Expected Value)',desc:'Long-term average profit/loss of a specific play'},
+        {name:'3-bet',desc:'A re-raise against an initial raise'},
+        {name:'4-bet',desc:'A re-raise against a 3-bet'},
+        {name:'Limp',desc:'Calling the big blind preflop without raising'},
+        {name:'River',desc:'The fifth and final community card'},
+        {name:'Reverse Implied Odds',desc:'Extra money you might lose even when your draw completes if opponent has better'},
+        {name:'Loose',desc:'Playing style that plays many hands'},
+        {name:'LAG',desc:'Loose-Aggressive. Plays a wide range aggressively'},
+        {name:'Implied Odds',desc:'Current pot odds + potential future winnings'},
+        {name:'Equity',desc:'Your expected share of the pot based on current hand strength'},
+        {name:'Overbet',desc:'Betting more than the pot size'},
+        {name:'Underbet',desc:'Betting a very small amount relative to the pot'},
+        {name:'Barrel',desc:'Consecutive bets. Double barrel = flop+turn, Triple barrel = flop+turn+river'},
+        {name:'Pot Control',desc:'Managing pot size with medium-strength hands'},
+        {name:'Multiway',desc:'A pot with 3+ players involved'},
+        {name:'Heads-up',desc:'Only two players remaining'},
+        {name:'Regular',desc:'A skilled player who regularly plays at a stake'},
+        {name:'Fish',desc:'A weak or inexperienced player (derogatory)'},
+        {name:'Variance',desc:'Short-term luck factor. Results swinging independent of skill'},
+        {name:'Gutshot',desc:'Straight draw needing one specific middle card (4 outs)'},
+        {name:'Open-ended',desc:'Straight draw that can complete on either end (8 outs)'},
+    ];
+
+    function t(key) { return I18N[LANG][key] || I18N.ko[key] || key; }
+
+    function toggleLang() {
+        LANG = LANG === 'ko' ? 'en' : 'ko';
+        localStorage.setItem('holdem-lang', LANG);
+        applyLang();
+    }
+
+    function applyLang() {
+        document.documentElement.lang = LANG;
+        document.querySelector('.lang-toggle').textContent = t('langBtn');
+        document.getElementById('appTitle').textContent = t('title');
+        document.getElementById('appSub').textContent = t('subtitle');
+
+        const navItems = document.querySelectorAll('.nav-item');
+        const navKeys = ['navPre','navRank','navOuts','navGloss'];
+        navItems.forEach((n,i) => { n.lastChild.textContent = t(navKeys[i]); });
+
+        const preTabs = document.querySelectorAll('#pagePre .subtab');
+        ['tabTyping','tabClick','tabQuiz'].forEach((k,i) => { if(preTabs[i]) preTabs[i].textContent = t(k); });
+
+        const outsTabs = document.querySelectorAll('#pageOuts .subtab');
+        ['tabPractice','tabCalc'].forEach((k,i) => { if(outsTabs[i]) outsTabs[i].textContent = t(k); });
+
+        document.getElementById('cliInput').placeholder = t('cliPlaceholder');
+
+        const guiLabels = document.querySelectorAll('#pre-gui .section-title');
+        ['position','situation','myCards'].forEach((k,i) => { if(guiLabels[i]) guiLabels[i].textContent = t(k); });
+        document.querySelector('#pre-gui .reset-btn').textContent = t('reset');
+
+        document.querySelectorAll('#pqBtns .q-btn')[0].textContent = t('raise');
+        document.querySelectorAll('#pqBtns .q-btn')[1].textContent = t('call');
+        document.querySelectorAll('#pqBtns .q-btn')[2].textContent = t('fold');
+
+        if(!pq.on) {
+            const pqSections = document.querySelectorAll('#pqSettings .section-title');
+            if(pqSections[0]) pqSections[0].textContent = t('position');
+            if(pqSections[1]) pqSections[1].textContent = t('situation');
+            if(pqSections[2]) pqSections[2].textContent = t('difficulty');
+            document.querySelector('#pqSettings .big-btn').textContent = t('startQuiz');
+        }
+
+        document.getElementById('hrStartBtn').textContent = t('hrStart');
+        const hrBtns = document.querySelectorAll('#hrBtns .q-btn');
+        hrBtns[0].textContent = t('hrA'); hrBtns[1].textContent = t('hrTie'); hrBtns[2].textContent = t('hrB');
+        if(!hr.on) document.getElementById('hrCard').innerHTML = '<div style="color:#484f58">' + t('hrTitle') + '</div>';
+
+        document.getElementById('outStartBtn').textContent = t('outsStart');
+        document.querySelector('#outInput .big-btn').textContent = t('confirm');
+
+        const calcLabels = document.querySelectorAll('#outs-calc .calc-label');
+        calcLabels[0].textContent = t('pot'); calcLabels[1].textContent = t('bet'); calcLabels[2].textContent = t('outs');
+        document.querySelector('#outs-calc .big-btn').textContent = t('calc');
+        document.querySelector('#outs-calc .section-title').textContent = t('potCalc');
+
+        document.getElementById('glossSearch').placeholder = t('glossSearch');
+        renderGloss(LANG === 'en' ? GLOSSARY_EN : GLOSSARY);
+    }
+
     // ============ SHARED DATA ============
     const RANKS = ['A','K','Q','J','T','9','8','7','6','5','4','3','2'];
     const SUITS = [{s:'♠',c:'black'},{s:'♥',c:'red'},{s:'♦',c:'red'},{s:'♣',c:'black'}];
@@ -546,11 +761,11 @@
         let vs=false, input=raw.toLowerCase();
         if (input.startsWith('v ')) { vs=true; input=input.slice(2).trim(); }
         const parts = input.split(/\s+/);
-        if (parts.length!==2) { cliShow('형식: [포지션] [핸드]','',''); return; }
+        if (parts.length!==2) { cliShow(t('cliFmt'),'',''); return; }
         const pos = POS_ALIAS[parts[0]];
-        if (!pos) { cliShow('포지션: utg mp co btn sb bb','',''); return; }
+        if (!pos) { cliShow(t('cliPosErr'),'',''); return; }
         const hand = normalizeHand(parts[1]);
-        if (!hand) { cliShow('핸드: aa, aks, kqo 형식','',''); return; }
+        if (!hand) { cliShow(t('cliHandErr'),'',''); return; }
         const res = getAction(pos, hand, vs);
         cliShow(res.action, `${pos} · ${hand} · ${vs?'vs Raise':'Open'}`, res.cls);
         cliHist.unshift({cmd:raw, action:res.action, cls:res.cls});
@@ -569,7 +784,7 @@
 
     function guiInit() {
         document.getElementById('guiPos').innerHTML = POSITIONS.map((p,i)=>`<div class="btn" onclick="guiSetPos(${i})">${p}</div>`).join('');
-        document.getElementById('guiFacing').innerHTML = ['오픈','vs 레이즈'].map((f,i)=>`<div class="btn${i===0?' active':''}" onclick="guiSetFac(${i})">${f}</div>`).join('');
+        document.getElementById('guiFacing').innerHTML = [t('open'),t('vsRaise')].map((f,i)=>`<div class="btn${i===0?' active':''}" onclick="guiSetFac(${i})">${f}</div>`).join('');
         guiRenderSuits(); guiRenderGrid(); guiRenderSel();
     }
     function guiSetPos(i) { gui.pos=i; const bs=document.getElementById('guiPos').children; for(let b of bs)b.classList.remove('active'); bs[i].classList.add('active'); guiEval(); }
@@ -585,16 +800,16 @@
     let pq = {on:false, ans:false, correct:0, total:0, streak:0, positions:[...POSITIONS], facing:'both', diff:'all', hand:null, pos:null, vs:false, answer:null};
 
     function pqInitSettings() {
-        document.getElementById('pqPosSet').innerHTML = `<div class="btn active" onclick="pqTogglePos(this,'all')">전체</div>`+POSITIONS.map(p=>`<div class="btn active" onclick="pqTogglePos(this,'${p}')">${p}</div>`).join('');
-        document.getElementById('pqFacSet').innerHTML = ['둘 다','오픈만','vs만'].map((f,i)=>`<div class="btn${i===0?' active':''}" onclick="pqSetFac(this,${i})">${f}</div>`).join('');
-        document.getElementById('pqDiffSet').innerHTML = ['전체','경계 핸드'].map((f,i)=>`<div class="btn${i===0?' active':''}" onclick="pqSetDiff(this,${i})">${f}</div>`).join('');
+        document.getElementById('pqPosSet').innerHTML = `<div class="btn active" onclick="pqTogglePos(this,'all')">${t('all')}</div>`+POSITIONS.map(p=>`<div class="btn active" onclick="pqTogglePos(this,'${p}')">${p}</div>`).join('');
+        document.getElementById('pqFacSet').innerHTML = [t('both'),t('openOnly'),t('vsOnly')].map((f,i)=>`<div class="btn${i===0?' active':''}" onclick="pqSetFac(this,${i})">${f}</div>`).join('');
+        document.getElementById('pqDiffSet').innerHTML = [t('allHands'),t('borderHands')].map((f,i)=>`<div class="btn${i===0?' active':''}" onclick="pqSetDiff(this,${i})">${f}</div>`).join('');
     }
     function pqTogglePos(el,p) { if(p==='all'){const a=el.classList.contains('active');const bs=el.parentElement.children;for(let b of bs){a?b.classList.remove('active'):b.classList.add('active');}pq.positions=a?[]:[...POSITIONS];}else{el.classList.toggle('active');pq.positions=[];const bs=el.parentElement.children;for(let i=1;i<bs.length;i++)if(bs[i].classList.contains('active'))pq.positions.push(POSITIONS[i-1]);bs[0].classList.toggle('active',pq.positions.length===6);}}
     function pqSetFac(el,i) { pq.facing=['both','open','vs'][i]; const bs=el.parentElement.children;for(let b of bs)b.classList.remove('active');el.classList.add('active'); }
     function pqSetDiff(el,i) { pq.diff=['all','border'][i]; const bs=el.parentElement.children;for(let b of bs)b.classList.remove('active');el.classList.add('active'); }
 
     function pqStart() {
-        if(!pq.positions.length){alert('포지션 선택');return;}
+        if(!pq.positions.length){alert(t('selectPos'));return;}
         pq.on=true;pq.correct=0;pq.total=0;pq.streak=0;
         document.getElementById('pqSettings').style.display='none';
         document.getElementById('pqBtns').style.display='flex';
@@ -618,7 +833,7 @@
         if(suf==='s'){const si=Math.floor(Math.random()*4);const s=ss[si];const red=si===1||si===2;dh=`<span${red?' class="red"':''}>${dr(r1)}${s}</span> <span${red?' class="red"':''}>${dr(r2)}${s}</span>`;}
         else{const s1=Math.floor(Math.random()*4);let s2=(s1+1+Math.floor(Math.random()*3))%4;dh=`<span${(s1===1||s1===2)?' class="red"':''}>${dr(r1)}${ss[s1]}</span> <span${(s2===1||s2===2)?' class="red"':''}>${dr(r2)}${ss[s2]}</span>`;}
 
-        document.getElementById('pqCard').innerHTML=`<div class="situation">${vs?'상대가 레이즈했다':'아무도 안 들어왔다'}</div><div class="position">${pos}</div><div class="hand">${dh}</div>`;
+        document.getElementById('pqCard').innerHTML=`<div class="situation">${vs?t('oppRaised'):t('noOneIn')}</div><div class="position">${pos}</div><div class="hand">${dh}</div>`;
     }
 
     function pqAnswer(a) {
@@ -632,11 +847,11 @@
         const el=document.getElementById('pqFeedback');
         el.style.display='block';
         el.className='feedback '+(ok?'correct':'wrong');
-        el.innerHTML=`<div class="action-text ${ok?'correct':'wrong'}">${ok?'정답!':'오답'}</div><div class="detail-text">${pq.pos} · ${pq.hand} → ${labels[pq.answer]}</div><div class="detail-text" style="margin-top:8px;color:${ok?'#7ee787':'#f0883e'}">${reason}</div>${table}<button class="big-btn" onclick="pqNext()" style="max-width:200px;">다음 (N)</button>`;
+        el.innerHTML=`<div class="action-text ${ok?'correct':'wrong'}">${ok?t('correct'):t('wrong')}</div><div class="detail-text">${pq.pos} · ${pq.hand} → ${labels[pq.answer]}</div><div class="detail-text" style="margin-top:8px;color:${ok?'#7ee787':'#f0883e'}">${reason}</div>${table}<button class="big-btn" onclick="pqNext()" style="max-width:200px;">${t('next')} (N)</button>`;
         document.getElementById('pqBtns').style.display='none';
         document.getElementById('pqScore').textContent=`${pq.correct}/${pq.total}`;
         document.getElementById('pqAcc').textContent=pq.total?Math.round(pq.correct/pq.total*100)+'%':'-';
-        document.getElementById('pqStreak').textContent=pq.streak>1?pq.streak+'연속!':'';
+        document.getElementById('pqStreak').textContent=pq.streak>1?pq.streak+' '+t('streak'):'';
     }
 
     function getBorderHand(pos,vs) {
@@ -684,7 +899,7 @@
         for(let j=0;j<13;j++){let hand;if(i===j)hand=RANKS[i]+RANKS[j];else if(j>i)hand=RANKS[i]+RANKS[j]+'s';else hand=RANKS[j]+RANKS[i]+'o';
         let bg='#161b22',c='#484f58';if(ranges.raise.includes(hand)){bg='#1a3d1a';c='#3fb950';}else if(ranges.call.includes(hand)){bg='#2d2000';c='#d29922';}
         const isCur=hand===cur;h+=`<td style="text-align:center;padding:1px 2px;background:${bg};color:${c};${isCur?'border:2px solid #fff;':'border:1px solid #21262d;'}font-weight:${isCur?'800':'400'};border-radius:2px;">${hand}</td>`;}h+='</tr>';}
-        h+='</table></div><div style="margin-top:4px;font-size:0.6rem;color:#8b949e;"><span style="color:#3fb950">■</span>레이즈 <span style="color:#d29922">■</span>콜 <span style="color:#484f58">■</span>폴드 <span style="border:1px solid #fff;padding:0 2px">□</span>현재</div>';
+        h+=`</table></div><div style="margin-top:4px;font-size:0.6rem;color:#8b949e;"><span style="color:#3fb950">■</span>${t('rangeRaise')} <span style="color:#d29922">■</span>${t('rangeCall')} <span style="color:#484f58">■</span>${t('rangeFold')} <span style="border:1px solid #fff;padding:0 2px">□</span>${t('rangeCurrent')}</div>`;
         return h;
     }
 
@@ -717,8 +932,11 @@
         hr.answer = answer;
 
         const nameA=HAND_NAMES[HAND_TYPES[typeA]], nameB=HAND_NAMES[HAND_TYPES[typeB]];
+        const HAND_NAMES_EN = {'high-card':'High Card','one-pair':'One Pair','two-pair':'Two Pair','three-kind':'Three of a Kind','straight':'Straight','flush':'Flush','full-house':'Full House','four-kind':'Four of a Kind','straight-flush':'Straight Flush'};
+        const nameAL = LANG==='en' ? HAND_NAMES_EN[HAND_TYPES[typeA]] : nameA;
+        const nameBL = LANG==='en' ? HAND_NAMES_EN[HAND_TYPES[typeB]] : nameB;
         const el=document.getElementById('hrCard');
-        el.innerHTML=`<div class="situation">어떤 핸드가 이길까?</div><div style="display:flex;justify-content:center;gap:20px;margin-top:12px;"><div style="text-align:center;"><div style="color:#4a9eff;font-weight:700;margin-bottom:4px;">A</div><div style="font-size:1.2rem;font-weight:700;">${nameA}</div></div><div style="color:#484f58;font-size:1.5rem;align-self:center;">vs</div><div style="text-align:center;"><div style="color:#d2a8ff;font-weight:700;margin-bottom:4px;">B</div><div style="font-size:1.2rem;font-weight:700;">${nameB}</div></div></div>`;
+        el.innerHTML=`<div class="situation">${t('hrTitle')}</div><div style="display:flex;justify-content:center;gap:20px;margin-top:12px;"><div style="text-align:center;"><div style="color:#4a9eff;font-weight:700;margin-bottom:4px;">A</div><div style="font-size:1.2rem;font-weight:700;">${nameAL}</div></div><div style="color:#484f58;font-size:1.5rem;align-self:center;">vs</div><div style="text-align:center;"><div style="color:#d2a8ff;font-weight:700;margin-bottom:4px;">B</div><div style="font-size:1.2rem;font-weight:700;">${nameBL}</div></div></div>`;
     }
 
     function hrAnswer(a) {
@@ -730,28 +948,27 @@
         const el=document.getElementById('hrFeedback');
         el.style.display='block';
         el.className='feedback '+(ok?'correct':'wrong');
-        const ranking = HAND_TYPES.map((t,i)=>`<span style="${i===HAND_TYPES.indexOf(t)?'':''}color:#8b949e;">${9-i}. ${HAND_NAMES[t]}</span>`).reverse().join(' > ');
-        el.innerHTML=`<div class="action-text ${ok?'correct':'wrong'}">${ok?'정답!':'오답'}</div><div class="detail-text">정답: ${labels[hr.answer]}</div><div class="detail-text" style="margin-top:10px;font-size:0.7rem;text-align:left;line-height:1.8;">강한 순서:<br>스트레이트 플러시 > 포카드 > 풀하우스 > 플러시 > 스트레이트 > 트리플 > 투페어 > 원페어 > 하이카드</div><button class="big-btn" onclick="hrNext()" style="max-width:200px;">다음 (N)</button>`;
+        el.innerHTML=`<div class="action-text ${ok?'correct':'wrong'}">${ok?t('correct'):t('wrong')}</div><div class="detail-text">${labels[hr.answer]}</div><div class="detail-text" style="margin-top:10px;font-size:0.7rem;text-align:left;line-height:1.8;">${t('hrOrder')}<br>${t('hrRankOrder')}</div><button class="big-btn" onclick="hrNext()" style="max-width:200px;">${t('next')} (N)</button>`;
         document.getElementById('hrBtns').style.display='none';
         document.getElementById('hrScore').textContent=`${hr.correct}/${hr.total}`;
         document.getElementById('hrAcc').textContent=hr.total?Math.round(hr.correct/hr.total*100)+'%':'-';
-        document.getElementById('hrStreak').textContent=hr.streak>1?hr.streak+'연속!':'';
+        document.getElementById('hrStreak').textContent=hr.streak>1?hr.streak+' '+t('streak'):'';
     }
 
     // ============ OUTS PRACTICE ============
     let outs = {on:false, ans:false, correct:0, total:0, answer:0, draw:'', board:[]};
 
     const OUTS_SCENARIOS = [
-        {draw:'플러시 드로우', desc:'같은 무늬 4장 (보드3+핸드1). 남은 같은 무늬 = 9장', outs:9},
-        {draw:'오픈엔드 스트레이트', desc:'양쪽으로 완성 가능한 스트레이트. 양쪽 4장씩 = 8장', outs:8},
-        {draw:'거트샷 스트레이트', desc:'가운데 1장 필요한 스트레이트. 4장', outs:4},
-        {draw:'투페어 → 풀하우스', desc:'투페어에서 풀하우스. 남은 4장 중 하나 = 4장', outs:4},
-        {draw:'원페어 → 트리플', desc:'원페어에서 셋. 남은 같은 카드 = 2장', outs:2},
-        {draw:'오버카드 2장', desc:'보드에 안 맞고 오버카드 2장. 각 3장씩 = 6장', outs:6},
-        {draw:'플러시+오픈엔드', desc:'플러시 드로우 + 오픈엔드. 9+6(겹치는 2장 제외) = 15장', outs:15},
-        {draw:'플러시+거트샷', desc:'플러시 드로우 + 거트샷. 9+3(겹치는 1장 제외) = 12장', outs:12},
-        {draw:'셋 → 풀하우스/포카드', desc:'셋에서 풀하우스 또는 포카드. 보드 페어 6장 + 포카드 1장 = 7장', outs:7},
-        {draw:'오버카드 1장', desc:'에이스 하나만 오버카드. 남은 A = 3장', outs:3},
+        {draw:'플러시 드로우', drawEn:'Flush Draw', desc:'같은 무늬 4장 (보드3+핸드1). 남은 같은 무늬 = 9장', descEn:'4 cards of same suit (board 3 + hand 1). Remaining same suit = 9', outs:9},
+        {draw:'오픈엔드 스트레이트', drawEn:'Open-ended Straight', desc:'양쪽으로 완성 가능한 스트레이트. 양쪽 4장씩 = 8장', descEn:'Straight draw open on both ends. 4 cards each side = 8', outs:8},
+        {draw:'거트샷 스트레이트', drawEn:'Gutshot Straight', desc:'가운데 1장 필요한 스트레이트. 4장', descEn:'Inside straight draw needing 1 middle card = 4', outs:4},
+        {draw:'투페어 → 풀하우스', drawEn:'Two Pair → Full House', desc:'투페어에서 풀하우스. 남은 4장 중 하나 = 4장', descEn:'Two pair improving to full house = 4', outs:4},
+        {draw:'원페어 → 트리플', drawEn:'One Pair → Trips', desc:'원페어에서 셋. 남은 같은 카드 = 2장', descEn:'One pair improving to three of a kind = 2', outs:2},
+        {draw:'오버카드 2장', drawEn:'Two Overcards', desc:'보드에 안 맞고 오버카드 2장. 각 3장씩 = 6장', descEn:'Two overcards, 3 each remaining = 6', outs:6},
+        {draw:'플러시+오픈엔드', drawEn:'Flush + Open-ended', desc:'플러시 드로우 + 오픈엔드. 9+6(겹치는 2장 제외) = 15장', descEn:'Flush draw + open-ended. 9+6 (minus 2 overlap) = 15', outs:15},
+        {draw:'플러시+거트샷', drawEn:'Flush + Gutshot', desc:'플러시 드로우 + 거트샷. 9+3(겹치는 1장 제외) = 12장', descEn:'Flush draw + gutshot. 9+3 (minus 1 overlap) = 12', outs:12},
+        {draw:'셋 → 풀하우스/포카드', drawEn:'Set → Full House/Quads', desc:'셋에서 풀하우스 또는 포카드. 보드 페어 6장 + 포카드 1장 = 7장', descEn:'Set to full house or quads. Board pair 6 + quad 1 = 7', outs:7},
+        {draw:'오버카드 1장', drawEn:'One Overcard', desc:'에이스 하나만 오버카드. 남은 A = 3장', descEn:'One ace as overcard. Remaining aces = 3', outs:3},
     ];
 
     function outStart() {
@@ -770,12 +987,14 @@
         outs.answer = scenario.outs;
         outs.draw = scenario.draw;
         outs.desc = scenario.desc;
+        outs.descEn = scenario.descEn;
 
         const ss = ['♠','♥','♦','♣'];
         const board = [];
         for(let i=0;i<3;i++) board.push({r:RANKS[Math.floor(Math.random()*13)], s:Math.floor(Math.random()*4)});
 
-        document.getElementById('outCard').innerHTML=`<div class="situation">${scenario.draw}</div><div class="board-cards">${board.map(c=>`<div class="board-card ${SUITS[c.s].c}">${dr(c.r)}${SUITS[c.s].s}</div>`).join('')}</div><div style="color:#8b949e;font-size:0.8rem;">아웃츠는 몇 개?</div>`;
+        const drawName = LANG==='en' ? scenario.drawEn : scenario.draw;
+        document.getElementById('outCard').innerHTML=`<div class="situation">${drawName}</div><div class="board-cards">${board.map(c=>`<div class="board-card ${SUITS[c.s].c}">${dr(c.r)}${SUITS[c.s].s}</div>`).join('')}</div><div style="color:#8b949e;font-size:0.8rem;">${t('outsQ')}</div>`;
         document.getElementById('outsNum').focus();
     }
 
@@ -790,7 +1009,7 @@
         el.style.display='block';
         el.className='feedback '+(ok?'correct':'wrong');
         const pct2 = outs.answer*2, pct4=outs.answer*4;
-        el.innerHTML=`<div class="action-text ${ok?'correct':'wrong'}">${ok?'정답!':'오답'}</div><div class="detail-text">정답: <strong>${outs.answer}개</strong></div><div class="detail-text" style="margin-top:8px;color:${ok?'#7ee787':'#f0883e'};">${outs.desc}</div><div class="detail-text" style="margin-top:6px;">2-4룰: 리버 ${pct2}% · 턴+리버 ${pct4}%</div><button class="big-btn" onclick="outNext()" style="max-width:200px;">다음 (N)</button>`;
+        el.innerHTML=`<div class="action-text ${ok?'correct':'wrong'}">${ok?t('correct'):t('wrong')}</div><div class="detail-text">${outs.answer} ${t('outsAnswer')}</div><div class="detail-text" style="margin-top:8px;color:${ok?'#7ee787':'#f0883e'};">${LANG==='en'?outs.descEn:outs.desc}</div><div class="detail-text" style="margin-top:6px;">${t('rule24')}: ${t('river')} ${pct2}% · ${t('turnRiver')} ${pct4}%</div><button class="big-btn" onclick="outNext()" style="max-width:200px;">${t('next')} (N)</button>`;
         document.getElementById('outInput').style.display='none';
         document.getElementById('outScore').textContent=`${outs.correct}/${outs.total}`;
         document.getElementById('outAcc').textContent=outs.total?Math.round(outs.correct/outs.total*100)+'%':'-';
@@ -801,18 +1020,18 @@
         const pot=parseFloat(document.getElementById('potSize').value)||0;
         const bet=parseFloat(document.getElementById('betSize').value)||0;
         const outsN=parseInt(document.getElementById('outsCount').value)||0;
-        if(!pot||!bet){document.getElementById('calcResult').innerHTML='<span style="color:#f85149">팟과 벳을 입력하세요</span>';return;}
+        if(!pot||!bet){document.getElementById('calcResult').innerHTML='<span style="color:#f85149">' + t('potBetReq') + '</span>';return;}
         const callCost=bet;
         const potOdds=Math.round(callCost/(pot+bet+callCost)*100);
         const equity2=outsN*2;
         const equity4=outsN*4;
         let verdict='';
         if(outsN){
-            if(equity2>=potOdds) verdict=`<span style="color:#3fb950">리버만 남아도 콜 OK (${equity2}% ≥ ${potOdds}%)</span>`;
-            else if(equity4>=potOdds) verdict=`<span style="color:#d29922">턴+리버면 콜 OK (${equity4}% ≥ ${potOdds}%)</span>`;
-            else verdict=`<span style="color:#f85149">폴드가 수학적으로 맞음 (${equity4}% < ${potOdds}%)</span>`;
+            if(equity2>=potOdds) verdict=`<span style="color:#3fb950">${t('callOkRiver')} (${equity2}% ≥ ${potOdds}%)</span>`;
+            else if(equity4>=potOdds) verdict=`<span style="color:#d29922">${t('callOkTurn')} (${equity4}% ≥ ${potOdds}%)</span>`;
+            else verdict=`<span style="color:#f85149">${t('foldMath')} (${equity4}% < ${potOdds}%)</span>`;
         }
-        document.getElementById('calcResult').innerHTML=`필요 확률: <strong>${potOdds}%</strong><br><span style="font-size:0.85rem;color:#8b949e;">콜 ${callCost} / 팟 ${pot+bet+callCost}</span>${outsN?`<br><br>${verdict}`:''} `;
+        document.getElementById('calcResult').innerHTML=`${t('needed')} <strong>${potOdds}%</strong><br><span style="font-size:0.85rem;color:#8b949e;">${t('call')} ${callCost} / ${t('pot')} ${pot+bet+callCost}</span>${outsN?`<br><br>${verdict}`:''} `;
     }
 
     // ============ GLOSSARY ============
@@ -850,6 +1069,7 @@
     guiInit();
     pqInitSettings();
     initGloss();
+    applyLang();
 
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('sw.js');
