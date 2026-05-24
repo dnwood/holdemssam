@@ -582,12 +582,14 @@
         const guiLabels = document.querySelectorAll('#pre-gui .section-title');
         ['position','situation','myCards'].forEach((k,i) => { if(guiLabels[i]) guiLabels[i].textContent = t(k); });
         document.querySelector('#pre-gui .reset-btn').textContent = t('reset');
+        document.getElementById('guiFacing').innerHTML = [t('open'),t('vsRaise')].map((f,i)=>`<div class="btn${i===(gui?gui.fac:0)?' active':''}" onclick="guiSetFac(${i})">${f}</div>`).join('');
 
         document.querySelectorAll('#pqBtns .q-btn')[0].textContent = t('raise');
         document.querySelectorAll('#pqBtns .q-btn')[1].textContent = t('call');
         document.querySelectorAll('#pqBtns .q-btn')[2].textContent = t('fold');
 
         if(!pq.on) {
+            pqInitSettings();
             const pqSections = document.querySelectorAll('#pqSettings .section-title');
             if(pqSections[0]) pqSections[0].textContent = t('position');
             if(pqSections[1]) pqSections[1].textContent = t('situation');
@@ -627,8 +629,8 @@
         document.getElementById('pqHint').innerHTML = t('hintPQ');
         document.getElementById('hrHint').innerHTML = t('hintHR');
 
-        const helpBox = document.querySelector('.help-box');
-        if(helpBox) helpBox.innerHTML = `<strong>${t('rule24')}</strong><br>${t('rule24t')}<br>${t('rule24r')}<br><br><strong>${t('commonOuts')}</strong><br>${t('flushDraw')} · ${t('openEnd')} · ${t('gutshot')}<br>${t('twoPairFH')} · ${t('onePairTrips')}`;
+        const calcHelpBox = document.querySelector('#outs-calc .help-box');
+        if(calcHelpBox) calcHelpBox.innerHTML = `<strong>${t('rule24')}</strong><br>${t('rule24t')}<br>${t('rule24r')}<br><br><strong>${t('commonOuts')}</strong><br>${t('flushDraw')} · ${t('openEnd')} · ${t('gutshot')}<br>${t('twoPairFH')} · ${t('onePairTrips')}`;
 
         document.getElementById('glossSearch').placeholder = t('glossSearch');
         renderGloss(LANG === 'en' ? GLOSSARY_EN : GLOSSARY);
