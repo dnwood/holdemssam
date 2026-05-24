@@ -1,0 +1,21 @@
+{
+  "name": "프리플랍 어드바이저",
+  "short_name": "프리플랍",
+  "description": "6-Max 프리플랍 액션 추천 & 퀴즈",
+  "start_url": "/holdem/",
+  "display": "standalone",
+  "background_color": "#0d1117",
+  "theme_color": "#0d1117",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
