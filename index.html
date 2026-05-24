@@ -412,6 +412,12 @@
             glossSearch: '용어 검색...',
             river: '리버', turnRiver: '턴+리버',
             noOneIn: '아무도 안 들어왔다', oppRaised: '상대가 레이즈했다',
+            srcPreflop: '기준: 6-Max Cash GTO Preflop Charts (100BB, RFI/vs Raise)',
+            srcRank: '기준: Official Poker Hand Rankings (WSOP/WPT 공식 규칙)',
+            srcOuts: '기준: Standard Outs Count (52장 덱 기본 확률 계산)',
+            hintPQ: '<kbd>R</kbd> <kbd>C</kbd> <kbd>F</kbd> · 다음 <kbd>N</kbd>',
+            hintHR: '<kbd>A</kbd> 왼쪽 · <kbd>T</kbd> 무승부 · <kbd>B</kbd> 오른쪽 · <kbd>N</kbd> 다음',
+            cliHelp: '<code>[포지션] [핸드]</code> Enter<br>포지션: <code>utg</code> <code>mp</code> <code>co</code> <code>btn</code> <code>sb</code> <code>bb</code><br>핸드: <code>aa</code> <code>aks</code> <code>kqo</code> · vs레이즈: <code>v co aks</code>',
         },
         en: {
             title: 'HoldemSsam', subtitle: 'Holdem Training for Beginners', langBtn: '한',
@@ -441,6 +447,12 @@
             glossSearch: 'Search terms...',
             river: 'River', turnRiver: 'Turn+River',
             noOneIn: 'No one has entered', oppRaised: 'Opponent raised',
+            srcPreflop: 'Source: 6-Max Cash GTO Preflop Charts (100BB, RFI/vs Raise)',
+            srcRank: 'Source: Official Poker Hand Rankings (WSOP/WPT rules)',
+            srcOuts: 'Source: Standard Outs Count (52-card deck probability)',
+            hintPQ: '<kbd>R</kbd> <kbd>C</kbd> <kbd>F</kbd> · Next <kbd>N</kbd>',
+            hintHR: '<kbd>A</kbd> Left · <kbd>T</kbd> Tie · <kbd>B</kbd> Right · <kbd>N</kbd> Next',
+            cliHelp: '<code>[position] [hand]</code> Enter<br>Position: <code>utg</code> <code>mp</code> <code>co</code> <code>btn</code> <code>sb</code> <code>bb</code><br>Hand: <code>aa</code> <code>aks</code> <code>kqo</code> · vs raise: <code>v co aks</code>',
         }
     };
 
@@ -517,6 +529,25 @@
         {name:'Variance',desc:'Short-term luck factor. Results swinging independent of skill'},
         {name:'Gutshot',desc:'Straight draw needing one specific middle card (4 outs)'},
         {name:'Open-ended',desc:'Straight draw that can complete on either end (8 outs)'},
+        {name:'Trips',desc:'Three of a kind using one hole card + a board pair (differs from a set)'},
+        {name:'Donk Bet',desc:'A bet made by a non-aggressor into the preflop raiser'},
+        {name:'Showdown',desc:'Revealing hands after the final betting round to determine the winner'},
+        {name:'Drawing Dead',desc:'Having no possible card that can improve your hand to a winner'},
+        {name:'Hero Call',desc:'Calling with a weak hand to catch a suspected bluff'},
+        {name:'Original Raiser',desc:'The player who made the first raise preflop'},
+        {name:'Muck',desc:'Folding without showing your cards'},
+        {name:'Freeze Out',desc:'A tournament format with no re-entry allowed'},
+        {name:'TPTK',desc:'Top Pair Top Kicker. Pairing the highest board card with the best kicker'},
+        {name:'VPIP',desc:'Voluntarily Put Money In Pot. Percentage of hands a player enters voluntarily'},
+        {name:'Passive Player',desc:'A player who mostly calls rather than betting or raising'},
+        {name:'Aggressive Player',desc:'A player who frequently bets and raises'},
+        {name:'Bubble',desc:'The stage just before reaching the money in a tournament'},
+        {name:'Add-on',desc:'Buying additional chips at a specific point in a tournament'},
+        {name:'Odds',desc:'The ratio of the cost to call versus the potential reward'},
+        {name:'Coin Flip',desc:'A situation where two players have roughly 50/50 equity (e.g., AK vs QQ)'},
+        {name:'Pot Committed',desc:'Having invested so much in the pot that folding is no longer viable'},
+        {name:'Squeeze',desc:'A large 3-bet after an open-raise and one or more callers'},
+        {name:'Isolation',desc:'Raising to play heads-up against a limper'},
     ];
 
     function t(key) { return I18N[LANG][key] || I18N.ko[key] || key; }
@@ -544,6 +575,9 @@
         ['tabPractice','tabCalc'].forEach((k,i) => { if(outsTabs[i]) outsTabs[i].textContent = t(k); });
 
         document.getElementById('cliInput').placeholder = t('cliPlaceholder');
+        document.getElementById('cliResult').innerHTML = '<div style="color:#484f58">' + t('cliWaiting') + '</div>';
+        const cliHelpBox = document.querySelector('#pre-cli .help-box');
+        if(cliHelpBox) cliHelpBox.innerHTML = t('cliHelp');
 
         const guiLabels = document.querySelectorAll('#pre-gui .section-title');
         ['position','situation','myCards'].forEach((k,i) => { if(guiLabels[i]) guiLabels[i].textContent = t(k); });
@@ -573,6 +607,28 @@
         calcLabels[0].textContent = t('pot'); calcLabels[1].textContent = t('bet'); calcLabels[2].textContent = t('outs');
         document.querySelector('#outs-calc .big-btn').textContent = t('calc');
         document.querySelector('#outs-calc .section-title').textContent = t('potCalc');
+
+        if(!pq.on) document.getElementById('pqCard').innerHTML = '<div style="color:#484f58">' + t('afterSettings') + '</div>';
+        if(!outs.on) document.getElementById('outCard').innerHTML = '<div style="color:#484f58">' + t('outsQ') + '</div>';
+
+        document.querySelectorAll('.score-label').forEach(el => {
+            const val = el.querySelector('.score-value');
+            if(val) {
+                if(val.id && val.id.includes('Score')) el.childNodes[0].textContent = t('score') + ' ';
+                else if(val.id && val.id.includes('Acc')) el.childNodes[0].textContent = t('accuracy') + ' ';
+            }
+        });
+
+        const sourceNotes = document.querySelectorAll('.source-note');
+        if(sourceNotes[0]) sourceNotes[0].textContent = t('srcPreflop');
+        if(sourceNotes[1]) sourceNotes[1].textContent = t('srcRank');
+        if(sourceNotes[2]) sourceNotes[2].textContent = t('srcOuts');
+
+        document.getElementById('pqHint').innerHTML = t('hintPQ');
+        document.getElementById('hrHint').innerHTML = t('hintHR');
+
+        const helpBox = document.querySelector('.help-box');
+        if(helpBox) helpBox.innerHTML = `<strong>${t('rule24')}</strong><br>${t('rule24t')}<br>${t('rule24r')}<br><br><strong>${t('commonOuts')}</strong><br>${t('flushDraw')} · ${t('openEnd')} · ${t('gutshot')}<br>${t('twoPairFH')} · ${t('onePairTrips')}`;
 
         document.getElementById('glossSearch').placeholder = t('glossSearch');
         renderGloss(LANG === 'en' ? GLOSSARY_EN : GLOSSARY);
@@ -679,6 +735,25 @@
         {name:'분산 (Variance)',desc:'단기적 운의 영향. 실력과 무관한 결과 변동'},
         {name:'거트샷 (Gutshot)',desc:'가운데 한 장이 필요한 스트레이트 드로우 (아웃츠 4개)'},
         {name:'오픈엔드 (Open-ended)',desc:'양쪽 끝 카드로 완성 가능한 스트레이트 드로우 (아웃츠 8개)'},
+        {name:'트립스 (Trips)',desc:'보드 페어 + 핸드 1장으로 만든 트리플 (셋과 구분)'},
+        {name:'동크 벳 (Donk Bet)',desc:'오리지널 레이저가 아닌 플레이어가 먼저 베팅하는 것'},
+        {name:'쇼다운 (Showdown)',desc:'리버 액션 까지 끝나고 핸드를 공개해 승자를 가리는 것'},
+        {name:'드로잉 데드 (Drawing Dead)',desc:'어떤 카드가 와도 이길 수 없는 상태'},
+        {name:'히어로 콜 (Hero Call)',desc:'비이성적 약한 핸드로 상대방의 블러프를 잡아내는 콜'},
+        {name:'오리지널 (Original)',desc:'프리플랍에서 베팅을 먼저 했던 플레이어'},
+        {name:'머크 (Muck)',desc:'카드를 보여주지 않고 파 마이딩 인정하는 것'},
+        {name:'프리즈 아웃 (Freeze Out)',desc:'한번 아웃되면 재참가가 불가능한 토너먼트 형식'},
+        {name:'TPTK (Top Pair Top Kicker)',desc:'보드 최고 카드와 페어 + 최고 키커 (예: AK으로 K 보드에서)'},
+        {name:'VPIP',desc:'Voluntarily Put Money In Pot. 자발적으로 팟에 참여하는 비율'},
+        {name:'패시브 플레이어 (Passive Player)',desc:'콜 위주의 수비적인 플레이를 하는 사람'},
+        {name:'어그레시브 플레이어 (Aggressive Player)',desc:'베팅과 레이즈 위주의 공격적 플레이를 하는 사람'},
+        {name:'버블 (Bubble)',desc:'토너먼트에서 상금권 직전의 등수 자리'},
+        {name:'애드온 (Add-on)',desc:'토너먼트에서 추가로 더 많은 칩을 사기'},
+        {name:'오즈 (Odds)',desc:'액션으로 인해 자신이 걸어야 할 금액 대 이익의 비율'},
+        {name:'코인 플립 (Coin Flip)',desc:'2명이 서로 승률이 거의 50:50인 상황 (예: AK vs QQ)'},
+        {name:'팟 커밋 (Pot Committed)',desc:'팟에 크게 투자해서 폴드를 포기할 수 없는 상태'},
+        {name:'스퀴즈 (Squeeze)',desc:'오픈 레이즈와 콜러 뒤에서 큰 3-벳을 하는 플레이'},
+        {name:'아이솔레이션 (Isolation)',desc:'림프한 상대를 레이즈해서 헤즈업으로 만드는 플레이'},
     ];
 
     // ============ NAVIGATION ============
@@ -793,8 +868,8 @@
     function guiRenderGrid() { const s=SUITS[gui.suit]; document.getElementById('guiGrid').innerHTML = RANKS.map(r=>{const sel=gui.cards.some(c=>c.r===r&&c.s===gui.suit); return `<div class="card-cell${s.c==='red'?' red':''}${sel?' selected':''}" onclick="guiPickCard('${r}',${gui.suit})">${dr(r)}${s.s}</div>`;}).join(''); }
     function guiRenderSel() { let h=''; for(let i=0;i<2;i++){if(gui.cards[i]){const c=gui.cards[i],s=SUITS[c.s];h+=`<div class="card-show ${s.c}">${dr(c.r)}${s.s}</div>`;}else h+='<div class="card-show empty">?</div>';} document.getElementById('guiSelected').innerHTML=h; }
     function guiPickCard(r,s) { const idx=gui.cards.findIndex(c=>c.r===r&&c.s===s); if(idx!==-1)gui.cards.splice(idx,1); else if(gui.cards.length<2)gui.cards.push({r,s}); else gui.cards[1]={r,s}; guiRenderGrid();guiRenderSel();guiEval(); }
-    function guiEval() { const el=document.getElementById('guiResult'); if(gui.pos===null||gui.cards.length!==2){el.className='result-box';el.innerHTML='<div style="color:#484f58">포지션과 카드 선택</div>';return;} const hand=handNotation(gui.cards),pos=POSITIONS[gui.pos],vs=gui.fac===1,res=getAction(pos,hand,vs); el.className='result-box '+res.cls; el.innerHTML=`<div style="color:#4a9eff;font-size:0.8rem">${hand} · ${pos} · ${vs?'vs Raise':'Open'}</div><div class="action-text ${res.cls}">${res.action}</div>`; }
-    function guiReset() { gui={pos:null,fac:0,suit:0,cards:[]}; guiInit(); document.getElementById('guiResult').className='result-box'; document.getElementById('guiResult').innerHTML='<div style="color:#484f58">포지션과 카드 선택</div>'; }
+    function guiEval() { const el=document.getElementById('guiResult'); if(gui.pos===null||gui.cards.length!==2){el.className='result-box';el.innerHTML=`<div style="color:#484f58">${t('selectPosCards')}</div>`;return;} const hand=handNotation(gui.cards),pos=POSITIONS[gui.pos],vs=gui.fac===1,res=getAction(pos,hand,vs); el.className='result-box '+res.cls; el.innerHTML=`<div style="color:#4a9eff;font-size:0.8rem">${hand} · ${pos} · ${vs?t('vsRaise'):t('open')}</div><div class="action-text ${res.cls}">${res.action}</div>`; }
+    function guiReset() { gui={pos:null,fac:0,suit:0,cards:[]}; guiInit(); document.getElementById('guiResult').className='result-box'; document.getElementById('guiResult').innerHTML=`<div style="color:#484f58">${t('selectPosCards')}</div>`; }
 
     // ============ PREFLOP QUIZ ============
     let pq = {on:false, ans:false, correct:0, total:0, streak:0, positions:[...POSITIONS], facing:'both', diff:'all', hand:null, pos:null, vs:false, answer:null};
@@ -973,7 +1048,7 @@
         hr.ans=true; hr.total++;
         const ok=a===hr.answer;
         if(ok){hr.correct++;hr.streak++;}else hr.streak=0;
-        const labels={a:'A 승',b:'B 승',tie:'무승부'};
+        const labels={a:t('hrA'),b:t('hrB'),tie:t('hrTie')};
         const el=document.getElementById('hrFeedback');
         el.style.display='block';
         el.className='feedback '+(ok?'correct':'wrong');
@@ -1064,15 +1139,17 @@
     }
 
     // ============ GLOSSARY ============
+    function getGlossary() { return LANG === 'en' ? GLOSSARY_EN : GLOSSARY; }
     function initGloss() {
-        renderGloss(GLOSSARY);
+        renderGloss(getGlossary());
     }
     function renderGloss(list) {
         document.getElementById('glossList').innerHTML = list.map(t=>`<div class="term-item"><div class="term-name">${t.name}</div><div class="term-desc">${t.desc}</div></div>`).join('');
     }
     function filterGloss() {
         const q = document.getElementById('glossSearch').value.toLowerCase();
-        renderGloss(q ? GLOSSARY.filter(t=>t.name.toLowerCase().includes(q)||t.desc.toLowerCase().includes(q)) : GLOSSARY);
+        const g = getGlossary();
+        renderGloss(q ? g.filter(t=>t.name.toLowerCase().includes(q)||t.desc.toLowerCase().includes(q)) : g);
     }
 
     // ============ KEYBOARD SHORTCUTS ============
