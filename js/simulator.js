@@ -60,7 +60,7 @@
         const profile=AI_PROFILES[player.profile];
         const hand=cardNotation(player.cards);
         const pos=sim.positions[player.seat];
-        const facingRaise=sim.currentBet>1;
+        const facingRaise=sim.currentBet>2;
         if(facingRaise){
             const ranges=VS_RAISE[pos];
             if(ranges&&ranges.raise.includes(hand))return{action:'raise',amount:sim.currentBet*3};
@@ -69,9 +69,9 @@
             return{action:'fold'};
         }else{
             const ranges=OPEN_RANGES[pos];
-            if(ranges&&ranges.raise.includes(hand))return{action:'raise',amount:2.5};
-            if(ranges&&ranges.call.includes(hand))return Math.random()<profile.pfr/profile.vpip?{action:'raise',amount:2.5}:{action:'call',amount:1};
-            if(Math.random()<(profile.vpip-0.15)*0.5)return{action:'call',amount:sim.currentBet||1};
+            if(ranges&&ranges.raise.includes(hand))return{action:'raise',amount:5};
+            if(ranges&&ranges.call.includes(hand))return Math.random()<profile.pfr/profile.vpip?{action:'raise',amount:5}:{action:'call',amount:2};
+            if(Math.random()<(profile.vpip-0.15)*0.5)return{action:'call',amount:sim.currentBet||2};
             return{action:'fold'};
         }
     }
@@ -99,22 +99,22 @@
         const potOdds=sim.currentBet>0?sim.currentBet/(sim.pot+sim.currentBet):0;
         if(strength==='monster'){
             if(sim.currentBet>0)return{action:'raise',amount:Math.round(sim.pot*2)};
-            return{action:'bet',amount:Math.max(1,Math.round(sim.pot*0.75))};
+            return{action:'bet',amount:Math.max(2,Math.round(sim.pot*0.75))};
         }
         if(strength==='strong'){
             if(sim.currentBet>0)return Math.random()<0.4?{action:'raise',amount:Math.round(sim.pot*0.75)}:{action:'call',amount:sim.currentBet};
-            return{action:'bet',amount:Math.max(1,Math.round(sim.pot*(0.5+Math.random()*0.25)))};
+            return{action:'bet',amount:Math.max(2,Math.round(sim.pot*(0.5+Math.random()*0.25)))};
         }
         if(strength==='draw'){
             if(sim.currentBet>0)return potOdds<0.3?{action:'call',amount:sim.currentBet}:{action:'fold'};
-            return Math.random()<profile.bluffFreq?{action:'bet',amount:Math.max(1,Math.round(sim.pot*0.5))}:{action:'check'};
+            return Math.random()<profile.bluffFreq?{action:'bet',amount:Math.max(2,Math.round(sim.pot*0.5))}:{action:'check'};
         }
         if(strength==='medium'){
             if(sim.currentBet>0)return sim.currentBet<=sim.pot*0.5&&Math.random()<profile.callDown?{action:'call',amount:sim.currentBet}:{action:'fold'};
             return{action:'check'};
         }
         if(sim.currentBet>0)return{action:'fold'};
-        return Math.random()<profile.bluffFreq*0.5?{action:'bet',amount:Math.max(1,Math.round(sim.pot*0.5))}:{action:'check'};
+        return Math.random()<profile.bluffFreq*0.5?{action:'bet',amount:Math.max(2,Math.round(sim.pot*0.5))}:{action:'check'};
     }
 
     // ============ GTO FEEDBACK ============
@@ -169,8 +169,8 @@
     function simStart(){
         const n=simConfig.players;
         const players=[];
-        for(let i=0;i<n;i++)players.push({id:i,seat:i,profile:i===0?'human':simConfig.profile,stack:100,cards:[],folded:false,allIn:false,bet:0});
-        sim={players,userSeat:0,dealer:Math.floor(Math.random()*n),deck:[],board:[],pot:0,currentBet:0,street:'preflop',actIndex:0,actOrder:[],handHistory:[],stats:{hands:0,vpipCount:0,pfrCount:0,betRaiseCount:0,callCount:0,showdownCount:0},chipHistory:[100],positions:[],deckIdx:0};
+        for(let i=0;i<n;i++)players.push({id:i,seat:i,profile:i===0?'human':simConfig.profile,stack:200,cards:[],folded:false,allIn:false,bet:0});
+        sim={players,userSeat:0,dealer:Math.floor(Math.random()*n),deck:[],board:[],pot:0,currentBet:0,street:'preflop',actIndex:0,actOrder:[],handHistory:[],stats:{hands:0,vpipCount:0,pfrCount:0,betRaiseCount:0,callCount:0,showdownCount:0},chipHistory:[200],positions:[],deckIdx:0};
         document.getElementById('playSetup').style.display='none';
         document.getElementById('playTable').style.display='block';
         simNewHand();
@@ -187,9 +187,9 @@
         sim.players.forEach(p=>{p.cards=[];p.folded=false;p.allIn=false;p.bet=0;});
         let ci=0;sim.players.forEach(p=>{p.cards=[sim.deck[ci++],sim.deck[ci++]];});sim.deckIdx=ci;
         const sbSeat=(sim.dealer+1)%n,bbSeat=(sim.dealer+2)%n;
-        if(n===2){simPostBlind(sim.dealer,0.5);simPostBlind((sim.dealer+1)%n,1);}
-        else{simPostBlind(sbSeat,0.5);simPostBlind(bbSeat,1);}
-        sim.currentBet=1;
+        if(n===2){simPostBlind(sim.dealer,1);simPostBlind((sim.dealer+1)%n,2);}
+        else{simPostBlind(sbSeat,1);simPostBlind(bbSeat,2);}
+        sim.currentBet=2;
         sim.actOrder=[];
         const firstAct=n===2?sim.dealer:(bbSeat+1)%n;
         for(let i=0;i<n;i++){const s=(firstAct+i)%n;if(!sim.players[s].folded&&!sim.players[s].allIn)sim.actOrder.push(s);}
@@ -282,9 +282,9 @@
         for(let i=0;i<5;i++){if(i<sim.board.length){const c=sim.board[i];boardHtml+=`<div class="sim-card ${SUITS[c.suit].c}">${RANKS[c.rank]}${SUITS[c.suit].s}</div>`;}else boardHtml+=`<div class="sim-card hidden"></div>`;}
         let seatsHtml='';
         sim.players.forEach((p,i)=>{if(i===sim.userSeat)return;const pos=sim.positions[i]||'';const lastAct=sim.handHistory.filter(h=>h.seat===i).pop();const actText=lastAct?lastAct.action.toUpperCase():'';
-        seatsHtml+=`<div class="sim-seat${p.folded?' folded':''}"><div class="seat-pos">${pos}</div><div class="seat-stack">${p.stack.toFixed(1)}BB</div><div class="seat-action">${p.folded?'FOLD':actText}</div></div>`;});
+        seatsHtml+=`<div class="sim-seat${p.folded?' folded':''}"><div class="seat-pos">${pos}</div><div class="seat-stack">${Math.round(p.stack)}</div><div class="seat-action">${p.folded?'FOLD':actText}</div></div>`;});
         let myCardsHtml='';user.cards.forEach(c=>{myCardsHtml+=`<div class="sim-card ${SUITS[c.suit].c}">${RANKS[c.rank]}${SUITS[c.suit].s}</div>`;});
-        el.innerHTML=`<div class="sim-table"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><span style="color:#8b949e;font-size:0.7rem;">${t('blindsLabel')}: 0.5/1</span><span style="color:#8b949e;font-size:0.7rem;">${sim.positions[sim.userSeat]} · ${user.stack.toFixed(1)}BB</span><button class="size-btn" onclick="simEndSession()" style="color:#f85149;border-color:#f85149;font-size:0.65rem;">${t('endSession')}</button></div><div class="sim-seats">${seatsHtml}</div><div class="sim-board">${boardHtml}</div><div class="sim-pot">${t('potLabel')}: ${sim.pot.toFixed(1)} BB</div><div class="sim-my-cards">${myCardsHtml}</div><div class="sim-actions" id="simActions"></div><div class="sim-sizes" id="simSizes"></div></div>`;
+        el.innerHTML=`<div class="sim-table"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><span style="color:#8b949e;font-size:0.7rem;">${t('blindsLabel')}: 1/2</span><span style="color:#8b949e;font-size:0.7rem;">${sim.positions[sim.userSeat]} · ${Math.round(user.stack)}</span><button class="size-btn" onclick="simEndSession()" style="color:#f85149;border-color:#f85149;font-size:0.65rem;">${t('endSession')}</button></div><div class="sim-seats">${seatsHtml}</div><div class="sim-board">${boardHtml}</div><div class="sim-pot">${t('potLabel')}: ${Math.round(sim.pot)}</div><div class="sim-my-cards">${myCardsHtml}</div><div class="sim-actions" id="simActions"></div><div class="sim-sizes" id="simSizes"></div></div>`;
     }
 
     function simShowActions(){
@@ -292,7 +292,7 @@
         const toCall=sim.currentBet-user.bet;
         let html=`<button class="act-btn act-fold" onclick="simUserAct('fold')">${t('simFold')}</button>`;
         if(toCall<=0){html+=`<button class="act-btn act-call" onclick="simUserAct('check')">${t('simCheck')}</button>`;html+=`<button class="act-btn act-raise" onclick="simShowBetSizes('bet')">${t('simBet')}</button>`;}
-        else{html+=`<button class="act-btn act-call" onclick="simUserAct('call')">${t('simCall')} ${toCall.toFixed(1)}</button>`;html+=`<button class="act-btn act-raise" onclick="simShowBetSizes('raise')">${t('simRaise')}</button>`;}
+        else{html+=`<button class="act-btn act-call" onclick="simUserAct('call')">${t('simCall')} ${Math.round(toCall)}</button>`;html+=`<button class="act-btn act-raise" onclick="simShowBetSizes('raise')">${t('simRaise')}</button>`;}
         html+=`<button class="act-btn" onclick="simUserAct('allin')">${t('simAllIn')}</button>`;
         document.getElementById('simActions').innerHTML=html;
     }
@@ -301,7 +301,7 @@
         const pot=sim.pot||1;
         const sizes=type==='bet'?[['1/3',pot*0.33],['1/2',pot*0.5],['2/3',pot*0.66],['Pot',pot]]:[['2x',sim.currentBet*2],['3x',sim.currentBet*3],['Pot',pot+sim.currentBet]];
         const user=sim.players[sim.userSeat];
-        let html=sizes.map(([label,amt])=>{const capped=Math.min(Math.round(amt*10)/10,user.stack);return`<button class="size-btn" onclick="simUserAct('${type}',${capped})">${label} (${capped.toFixed(1)})</button>`;}).join('');
+        let html=sizes.map(([label,amt])=>{const capped=Math.min(Math.round(amt),user.stack);return`<button class="size-btn" onclick="simUserAct('${type}',${capped})">${label} (${capped})</button>`;}).join('');
         html+=`<button class="size-btn" onclick="simUserAct('allin')">${t('simAllIn')}</button>`;
         document.getElementById('simSizes').innerHTML=html;
     }
@@ -315,7 +315,7 @@
     function simRenderReview(winnerId){
         const user=sim.players[sim.userSeat];
         const won=winnerId===sim.userSeat;
-        const prevStack=sim.chipHistory.length>=2?sim.chipHistory[sim.chipHistory.length-2]:100;
+        const prevStack=sim.chipHistory.length>=2?sim.chipHistory[sim.chipHistory.length-2]:200;
         const chipDelta=user.stack-prevStack;
         const userHand=cardNotation(user.cards);
         const userPos=sim.positions[sim.userSeat];
@@ -342,7 +342,7 @@
         });
         let boardHtml=sim.board.map(c=>`<span style="display:inline-block;margin:2px;font-weight:700;${SUITS[c.suit].c==='red'?'color:#f85149;':''}">${RANKS[c.rank]}${SUITS[c.suit].s}</span>`).join(' ');
         const el=document.getElementById('playTable');
-        el.innerHTML=`<div style="text-align:center;margin-bottom:12px;"><div style="font-size:1.2rem;font-weight:700;color:${won?'#3fb950':'#f85149'};">${won?'+':''}${chipDelta.toFixed(1)} BB</div><div style="color:#8b949e;font-size:0.75rem;margin-top:4px;">${userHand} · ${userPos}</div><div style="margin:8px 0;">${boardHtml}</div></div><div style="background:#161b22;border-radius:8px;padding:12px;margin-bottom:12px;"><div style="display:flex;justify-content:space-between;padding:4px 0;font-size:0.6rem;color:#484f58;border-bottom:1px solid #30363d;margin-bottom:4px;"><span>Street</span><span>${t('yourAction')}</span><span>${t('recommended')}</span><span>Result</span></div>${reviewHtml||'<div style="color:#484f58;text-align:center;">-</div>'}</div><div style="display:flex;gap:8px;justify-content:center;"><button class="big-btn" onclick="simNextHandCheck()" style="max-width:160px;">${t('nextHand')}</button><button class="big-btn" onclick="simShowStats()" style="max-width:120px;background:#21262d;">${t('simStats')}</button></div>`;
+        el.innerHTML=`<div style="text-align:center;margin-bottom:12px;"><div style="font-size:1.2rem;font-weight:700;color:${won?'#3fb950':'#f85149'};">${won?'+':''}${Math.round(chipDelta)}</div><div style="color:#8b949e;font-size:0.75rem;margin-top:4px;">${userHand} · ${userPos}</div><div style="margin:8px 0;">${boardHtml}</div></div><div style="background:#161b22;border-radius:8px;padding:12px;margin-bottom:12px;"><div style="display:flex;justify-content:space-between;padding:4px 0;font-size:0.6rem;color:#484f58;border-bottom:1px solid #30363d;margin-bottom:4px;"><span>Street</span><span>${t('yourAction')}</span><span>${t('recommended')}</span><span>Result</span></div>${reviewHtml||'<div style="color:#484f58;text-align:center;">-</div>'}</div><div style="display:flex;gap:8px;justify-content:center;"><button class="big-btn" onclick="simNextHandCheck()" style="max-width:160px;">${t('nextHand')}</button><button class="big-btn" onclick="simShowStats()" style="max-width:120px;background:#21262d;">${t('simStats')}</button></div>`;
     }
 
     function simNextHandCheck(){
@@ -352,18 +352,18 @@
     function simShowBust(){
         document.getElementById('playTable').innerHTML=`<div style="text-align:center;padding:40px 0;"><div style="font-size:1.5rem;font-weight:700;color:#f85149;">${t('bust')}</div><div style="margin-top:16px;display:flex;gap:8px;justify-content:center;"><button class="big-btn" onclick="simRebuy()" style="max-width:140px;">${t('rebuy')}</button><button class="big-btn" onclick="simShowStats()" style="max-width:140px;background:#21262d;">${t('simStats')}</button></div></div>`;
     }
-    function simRebuy(){sim.players[sim.userSeat].stack=100;sim.chipHistory.push(100);simNewHand();}
+    function simRebuy(){sim.players[sim.userSeat].stack=200;sim.chipHistory.push(200);simNewHand();}
 
     function simShowStats(){
         const s=sim.stats,user=sim.players[sim.userSeat];
-        const profit=user.stack-100;
+        const profit=user.stack-200;
         const vpip=s.hands>0?Math.round(s.vpipCount/s.hands*100):0;
         const pfr=s.hands>0?Math.round(s.pfrCount/s.hands*100):0;
         const af=s.callCount>0?(s.betRaiseCount/s.callCount).toFixed(1):'-';
         const sd=s.hands>0?Math.round(s.showdownCount/s.hands*100):0;
         const wr=s.hands>0?(profit/s.hands).toFixed(2):'0';
         const graph=simChipGraph();
-        document.getElementById('playTable').innerHTML=`<div style="text-align:center;margin-bottom:12px;"><div style="font-size:0.85rem;font-weight:700;color:#7ee787;">${t('sessionSummary')}</div></div><div style="background:#161b22;border-radius:8px;padding:12px;margin-bottom:12px;"><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:0.75rem;"><div><span style="color:#8b949e;">${t('handsPlayed')}:</span> <strong>${s.hands}</strong></div><div><span style="color:#8b949e;">${t('profit')}:</span> <strong style="color:${profit>=0?'#3fb950':'#f85149'}">${profit>=0?'+':''}${profit.toFixed(1)}BB</strong></div><div><span style="color:#8b949e;">${t('winRate')}:</span> <strong>${wr}</strong></div><div><span style="color:#8b949e;">${t('vpipLabel')}:</span> <strong>${vpip}%</strong></div><div><span style="color:#8b949e;">${t('pfrLabel')}:</span> <strong>${pfr}%</strong></div><div><span style="color:#8b949e;">${t('afLabel')}:</span> <strong>${af}</strong></div><div><span style="color:#8b949e;">${t('showdownPct')}:</span> <strong>${sd}%</strong></div></div></div><div style="background:#161b22;border-radius:8px;padding:12px;margin-bottom:12px;"><div style="color:#8b949e;font-size:0.7rem;margin-bottom:8px;">${t('chipGraph')}</div>${graph}</div><div style="display:flex;gap:8px;justify-content:center;"><button class="big-btn" onclick="simNextHandCheck()" style="max-width:160px;">${t('nextHand')}</button><button class="big-btn" onclick="simEndSession()" style="max-width:140px;background:#21262d;color:#f85149;">${t('endSession')}</button></div>`;
+        document.getElementById('playTable').innerHTML=`<div style="text-align:center;margin-bottom:12px;"><div style="font-size:0.85rem;font-weight:700;color:#7ee787;">${t('sessionSummary')}</div></div><div style="background:#161b22;border-radius:8px;padding:12px;margin-bottom:12px;"><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:0.75rem;"><div><span style="color:#8b949e;">${t('handsPlayed')}:</span> <strong>${s.hands}</strong></div><div><span style="color:#8b949e;">${t('profit')}:</span> <strong style="color:${profit>=0?'#3fb950':'#f85149'}">${profit>=0?'+':''}${Math.round(profit)}</strong></div><div><span style="color:#8b949e;">${t('winRate')}:</span> <strong>${wr}</strong></div><div><span style="color:#8b949e;">${t('vpipLabel')}:</span> <strong>${vpip}%</strong></div><div><span style="color:#8b949e;">${t('pfrLabel')}:</span> <strong>${pfr}%</strong></div><div><span style="color:#8b949e;">${t('afLabel')}:</span> <strong>${af}</strong></div><div><span style="color:#8b949e;">${t('showdownPct')}:</span> <strong>${sd}%</strong></div></div></div><div style="background:#161b22;border-radius:8px;padding:12px;margin-bottom:12px;"><div style="color:#8b949e;font-size:0.7rem;margin-bottom:8px;">${t('chipGraph')}</div>${graph}</div><div style="display:flex;gap:8px;justify-content:center;"><button class="big-btn" onclick="simNextHandCheck()" style="max-width:160px;">${t('nextHand')}</button><button class="big-btn" onclick="simEndSession()" style="max-width:140px;background:#21262d;color:#f85149;">${t('endSession')}</button></div>`;
     }
 
     function simChipGraph(){
@@ -373,7 +373,7 @@
         const min=Math.min(...data)-5,max=Math.max(...data)+5;
         const xStep=(w-pad*2)/(data.length-1),yScale=(h-pad*2)/((max-min)||1);
         const pts=data.map((v,i)=>`${(pad+i*xStep).toFixed(1)},${(h-pad-(v-min)*yScale).toFixed(1)}`);
-        const baseline=(h-pad-(100-min)*yScale).toFixed(1);
+        const baseline=(h-pad-(200-min)*yScale).toFixed(1);
         const last=pts[pts.length-1].split(',');
         return`<svg width="100%" viewBox="0 0 ${w} ${h}" style="max-width:${w}px;display:block;margin:0 auto;"><line x1="${pad}" y1="${baseline}" x2="${w-pad}" y2="${baseline}" stroke="#30363d" stroke-dasharray="3"/><polyline points="${pts.join(' ')}" fill="none" stroke="#7ee787" stroke-width="1.5"/><circle cx="${last[0]}" cy="${last[1]}" r="3" fill="#7ee787"/></svg>`;
     }
