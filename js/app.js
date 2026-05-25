@@ -7,6 +7,7 @@
             const pages = ['pagePre','pageQuiz','pageOuts','pagePlay','pageGloss'];
             n.classList.toggle('active', pages[i] === id);
         });
+        if(id === 'pageOuts' && !outs.on) outStart();
     }
 
     function subTab(page, sub) {
@@ -310,7 +311,6 @@
 
     function outStart() {
         outs.on=true; outs.correct=0; outs.total=0;
-        document.getElementById('outStartBtn').style.display='none';
         outNext();
     }
 
