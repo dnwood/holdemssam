@@ -341,9 +341,8 @@
         <!-- ===== 프리플랍 Page ===== -->
         <div class="page active" id="pagePre">
             <div class="subtabs">
-                <div class="subtab active" onclick="subTab('pre','cli')">타이핑</div>
+                <div class="subtab active" onclick="subTab('pre','cli')">단축키</div>
                 <div class="subtab" onclick="subTab('pre','gui')">클릭</div>
-                <div class="subtab" onclick="subTab('pre','quiz')">퀴즈</div>
             </div>
 
             <div class="subpanel active" id="pre-cli">
@@ -374,46 +373,32 @@
                 <div class="result-box" id="guiResult" style="margin-top:12px;"><div style="color:#484f58">포지션과 카드 선택</div></div>
                 <button class="reset-btn" onclick="guiReset()">초기화</button>
             </div>
-
-            <div class="subpanel" id="pre-quiz">
-                <div class="source-note">기준: 6-Max Cash GTO Preflop Charts (100BB, RFI/vs Raise)</div>
-                <div class="score-bar"><span class="score-label">점수: <span class="score-value" id="pqScore">0/0</span></span><span class="score-label">정답률: <span class="score-value" id="pqAcc">-</span></span><span class="streak-text" id="pqStreak"></span></div>
-                <div class="quiz-card" id="pqCard"><div style="color:#484f58">설정 후 시작</div></div>
-                <div class="quiz-btns" id="pqBtns" style="display:none;">
-                    <button class="q-btn raise" onclick="pqAnswer('raise')">RAISE</button>
-                    <button class="q-btn call" onclick="pqAnswer('call')">CALL</button>
-                    <button class="q-btn fold" onclick="pqAnswer('fold')">FOLD</button>
-                </div>
-                <div class="shortcut-hint" id="pqHint" style="display:none;"><kbd>R</kbd> <kbd>C</kbd> <kbd>F</kbd> · 다음 <kbd>N</kbd></div>
-                <div class="feedback" id="pqFeedback" style="display:none;"></div>
-                <div class="card-box" id="pqSettings">
-                    <div class="section-title">포지션</div>
-                    <div class="btn-group" id="pqPosSet"></div>
-                    <div class="section-title" style="margin-top:10px;">상황</div>
-                    <div class="btn-group" id="pqFacSet"></div>
-                    <div class="section-title" style="margin-top:10px;">난이도</div>
-                    <div class="btn-group" id="pqDiffSet"></div>
-                    <button class="big-btn" onclick="pqStart()">퀴즈 시작</button>
-                </div>
-            </div>
         </div>
 
-        <!-- ===== 핸드 랭킹 Page ===== -->
-        <div class="page" id="pageRank">
+        <!-- ===== 퀴즈 Page (프리플랍 퀴즈) ===== -->
+        <div class="page" id="pageQuiz">
             <div class="page-mascot">
-                <svg width="40" height="40" viewBox="0 0 40 40"><rect x="5" y="3" width="30" height="34" rx="4" fill="#fff" stroke="#e8b341" stroke-width="2"/><text x="20" y="24" text-anchor="middle" font-size="14" font-weight="bold" fill="#333">👑</text></svg>
+                <svg width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="16" fill="#ffd93d" opacity="0.2"/><text x="20" y="26" text-anchor="middle" font-size="16">✏️</text></svg>
             </div>
-            <div class="source-note">기준: Official Poker Hand Rankings (WSOP/WPT 공식 규칙)</div>
-            <div class="score-bar"><span class="score-label">점수: <span class="score-value" id="hrScore">0/0</span></span><span class="score-label">정답률: <span class="score-value" id="hrAcc">-</span></span><span class="streak-text" id="hrStreak"></span></div>
-            <div class="quiz-card" id="hrCard"><div style="color:#484f58">어떤 핸드가 이길까?</div></div>
-            <div class="quiz-btns" id="hrBtns" style="display:none;">
-                <button class="q-btn a-btn" onclick="hrAnswer('a')">A 승</button>
-                <button class="q-btn" style="border-color:#8b949e;color:#8b949e;" onclick="hrAnswer('tie')">무승부</button>
-                <button class="q-btn b-btn" onclick="hrAnswer('b')">B 승</button>
+            <div class="source-note">기준: 6-Max Cash GTO Preflop Charts (100BB, RFI/vs Raise)</div>
+            <div class="score-bar"><span class="score-label">점수: <span class="score-value" id="pqScore">0/0</span></span><span class="score-label">정답률: <span class="score-value" id="pqAcc">-</span></span><span class="streak-text" id="pqStreak"></span></div>
+            <div class="quiz-card" id="pqCard"><div style="color:#484f58">설정 후 시작</div></div>
+            <div class="quiz-btns" id="pqBtns" style="display:none;">
+                <button class="q-btn raise" onclick="pqAnswer('raise')">RAISE</button>
+                <button class="q-btn call" onclick="pqAnswer('call')">CALL</button>
+                <button class="q-btn fold" onclick="pqAnswer('fold')">FOLD</button>
             </div>
-            <div class="shortcut-hint" id="hrHint" style="display:none;"><kbd>A</kbd> 왼쪽 · <kbd>T</kbd> 무승부 · <kbd>B</kbd> 오른쪽 · <kbd>N</kbd> 다음</div>
-            <div class="feedback" id="hrFeedback" style="display:none;"></div>
-            <button class="big-btn" id="hrStartBtn" onclick="hrStart()">핸드 랭킹 퀴즈 시작</button>
+            <div class="shortcut-hint" id="pqHint" style="display:none;"><kbd>R</kbd> <kbd>C</kbd> <kbd>F</kbd> · 다음 <kbd>N</kbd></div>
+            <div class="feedback" id="pqFeedback" style="display:none;"></div>
+            <div class="card-box" id="pqSettings">
+                <div class="section-title">포지션</div>
+                <div class="btn-group" id="pqPosSet"></div>
+                <div class="section-title" style="margin-top:10px;">상황</div>
+                <div class="btn-group" id="pqFacSet"></div>
+                <div class="section-title" style="margin-top:10px;">난이도</div>
+                <div class="btn-group" id="pqDiffSet"></div>
+                <button class="big-btn" onclick="pqStart()">퀴즈 시작</button>
+            </div>
         </div>
 
         <!-- ===== 아웃츠 Page ===== -->
@@ -487,7 +472,7 @@
     <!-- Bottom Navigation -->
     <div class="bottom-nav">
         <div class="nav-item active" onclick="switchPage('pagePre')"><span class="nav-icon">♠</span>프리플랍</div>
-        <div class="nav-item" onclick="switchPage('pageRank')"><span class="nav-icon">👑</span>랭킹</div>
+        <div class="nav-item" onclick="switchPage('pageQuiz')"><span class="nav-icon">✏️</span>퀴즈</div>
         <div class="nav-item" onclick="switchPage('pageOuts')"><span class="nav-icon">🎯</span>아웃츠</div>
         <div class="nav-item" onclick="switchPage('pagePlay')"><span class="nav-icon">🃏</span>플레이</div>
         <div class="nav-item" onclick="switchPage('pageGloss')"><span class="nav-icon">📖</span>용어</div>

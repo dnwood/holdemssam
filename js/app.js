@@ -4,7 +4,7 @@
         currentPage = id;
         document.querySelectorAll('.page').forEach(p => p.classList.toggle('active', p.id === id));
         document.querySelectorAll('.nav-item').forEach((n, i) => {
-            const pages = ['pagePre','pageRank','pageOuts','pageGloss'];
+            const pages = ['pagePre','pageQuiz','pageOuts','pagePlay','pageGloss'];
             n.classList.toggle('active', pages[i] === id);
         });
     }
@@ -249,58 +249,6 @@
         return h;
     }
 
-    // ============ HAND RANKING QUIZ ============
-    let hr = {on:false, ans:false, correct:0, total:0, streak:0, answer:null};
-    const RANK_ORDER = {14:'A',13:'K',12:'Q',11:'J',10:'T',9:'9',8:'8',7:'7',6:'6',5:'5',4:'4',3:'3',2:'2'};
-    const HAND_TYPES = ['high-card','one-pair','two-pair','three-kind','straight','flush','full-house','four-kind','straight-flush'];
-    const HAND_NAMES = {'high-card':'하이카드','one-pair':'원페어','two-pair':'투페어','three-kind':'트리플','straight':'스트레이트','flush':'플러시','full-house':'풀하우스','four-kind':'포카드','straight-flush':'스트레이트 플러시'};
-
-    function hrStart() {
-        hr.on=true; hr.correct=0; hr.total=0; hr.streak=0;
-        document.getElementById('hrStartBtn').style.display='none';
-        document.getElementById('hrBtns').style.display='flex';
-        document.getElementById('hrHint').style.display='block';
-        hrNext();
-    }
-
-    function hrNext() {
-        hr.ans=false;
-        document.getElementById('hrFeedback').style.display='none';
-        document.getElementById('hrBtns').style.display='flex';
-        const typeA = Math.floor(Math.random()*9);
-        let typeB = Math.floor(Math.random()*9);
-        if(Math.random()<0.3) typeB=typeA;
-
-        let answer;
-        if(typeA>typeB) answer='a';
-        else if(typeB>typeA) answer='b';
-        else answer='tie';
-        hr.answer = answer;
-
-        const nameA=HAND_NAMES[HAND_TYPES[typeA]], nameB=HAND_NAMES[HAND_TYPES[typeB]];
-        const HAND_NAMES_EN = {'high-card':'High Card','one-pair':'One Pair','two-pair':'Two Pair','three-kind':'Three of a Kind','straight':'Straight','flush':'Flush','full-house':'Full House','four-kind':'Four of a Kind','straight-flush':'Straight Flush'};
-        const nameAL = LANG==='en' ? HAND_NAMES_EN[HAND_TYPES[typeA]] : nameA;
-        const nameBL = LANG==='en' ? HAND_NAMES_EN[HAND_TYPES[typeB]] : nameB;
-        const el=document.getElementById('hrCard');
-        el.innerHTML=`<div class="situation">${t('hrTitle')}</div><div style="display:flex;justify-content:center;gap:20px;margin-top:12px;"><div style="text-align:center;"><div style="color:#4a9eff;font-weight:700;margin-bottom:4px;">A</div><div style="font-size:1.2rem;font-weight:700;">${nameAL}</div></div><div style="color:#484f58;font-size:1.5rem;align-self:center;">vs</div><div style="text-align:center;"><div style="color:#d2a8ff;font-weight:700;margin-bottom:4px;">B</div><div style="font-size:1.2rem;font-weight:700;">${nameBL}</div></div></div>`;
-    }
-
-    function hrAnswer(a) {
-        if(hr.ans)return;
-        hr.ans=true; hr.total++;
-        const ok=a===hr.answer;
-        if(ok){hr.correct++;hr.streak++;}else hr.streak=0;
-        const labels={a:t('hrA'),b:t('hrB'),tie:t('hrTie')};
-        const el=document.getElementById('hrFeedback');
-        el.style.display='block';
-        el.className='feedback '+(ok?'correct':'wrong');
-        el.innerHTML=`<div class="action-text ${ok?'correct':'wrong'}">${ok?t('correct'):t('wrong')}</div><div class="detail-text">${labels[hr.answer]}</div><div class="detail-text" style="margin-top:10px;font-size:0.7rem;text-align:left;line-height:1.8;">${t('hrOrder')}<br>${t('hrRankOrder')}</div><button class="big-btn" onclick="hrNext()" style="max-width:200px;">${t('next')} (N)</button>`;
-        document.getElementById('hrBtns').style.display='none';
-        document.getElementById('hrScore').textContent=`${hr.correct}/${hr.total}`;
-        document.getElementById('hrAcc').textContent=hr.total?Math.round(hr.correct/hr.total*100)+'%':'-';
-        document.getElementById('hrStreak').textContent=hr.streak>1?hr.streak+' '+t('streak'):'';
-    }
-
     // ============ OUTS PRACTICE ============
     let outs = {on:false, ans:false, correct:0, total:0, answer:0, draw:'', board:[]};
 
@@ -400,13 +348,9 @@
             if(e.target.id==='outsNum' && e.key==='Enter') outSubmit();
             return;
         }
-        if(currentPage==='pagePre' && pq.on) {
+        if((currentPage==='pagePre' || currentPage==='pageQuiz') && pq.on) {
             if(pq.ans){if(e.key==='n'||e.key==='N'||e.key===' ')pqNext();}
             else{if(e.key==='r'||e.key==='R')pqAnswer('raise');if(e.key==='c'||e.key==='C')pqAnswer('call');if(e.key==='f'||e.key==='F')pqAnswer('fold');}
-        }
-        if(currentPage==='pageRank' && hr.on) {
-            if(hr.ans){if(e.key==='n'||e.key==='N'||e.key===' ')hrNext();}
-            else{if(e.key==='a'||e.key==='A')hrAnswer('a');if(e.key==='t'||e.key==='T')hrAnswer('tie');if(e.key==='b'||e.key==='B')hrAnswer('b');}
         }
         if(currentPage==='pageOuts' && outs.on && outs.ans) {
             if(e.key==='n'||e.key==='N'||e.key===' ')outNext();

@@ -4,8 +4,8 @@
     const I18N = {
         ko: {
             title: '🃏 홀덤쌤', subtitle: '초보를 위한 홀덤 트레이닝 ✨', langBtn: 'EN',
-            navPre: '프리플랍', navRank: '랭킹', navOuts: '아웃츠', navGloss: '용어',
-            tabTyping: '타이핑', tabClick: '클릭', tabQuiz: '퀴즈', tabPractice: '연습', tabCalc: '계산기',
+            navPre: '프리플랍', navQuiz: '퀴즈', navOuts: '아웃츠', navGloss: '용어',
+            tabShortcut: '단축키', tabClick: '클릭', tabPractice: '연습', tabCalc: '계산기',
             cliPlaceholder: 'utg aks', cliWaiting: '입력 대기중...',
             position: '포지션', situation: '상황', myCards: '내 카드', open: '오픈', vsRaise: 'vs 레이즈',
             selectPosCards: '포지션과 카드 선택', reset: '초기화',
@@ -16,9 +16,6 @@
             selectPos: '포지션 선택',
             raise: 'RAISE', call: 'CALL', fold: 'FOLD',
             rangeRaise: '레이즈', rangeCall: '콜', rangeFold: '폴드', rangeCurrent: '현재',
-            hrTitle: '어떤 핸드가 이길까?', hrA: 'A 승', hrTie: '무승부', hrB: 'B 승',
-            hrStart: '핸드 랭킹 퀴즈 시작 🚀', hrOrder: '강한 순서:',
-            hrRankOrder: '스트레이트 플러시 > 포카드 > 풀하우스 > 플러시 > 스트레이트 > 트리플 > 투페어 > 원페어 > 하이카드',
             outsQ: '아웃츠는 몇 개?', outsStart: '아웃츠 연습 시작 🚀', outsAnswer: '개', confirm: '확인',
             rule24: '2-4 룰', rule24t: '턴+리버: 아웃츠 × 4 = 확률%', rule24r: '리버만: 아웃츠 × 2 = 확률%',
             commonOuts: '흔한 아웃츠',
@@ -31,10 +28,8 @@
             river: '리버', turnRiver: '턴+리버',
             noOneIn: '아무도 안 들어왔다', oppRaised: '상대가 레이즈했다',
             srcPreflop: '기준: 6-Max Cash GTO Preflop Charts (100BB, RFI/vs Raise)',
-            srcRank: '기준: Official Poker Hand Rankings (WSOP/WPT 공식 규칙)',
             srcOuts: '기준: Standard Outs Count (52장 덱 기본 확률 계산)',
             hintPQ: '<kbd>R</kbd> <kbd>C</kbd> <kbd>F</kbd> · 다음 <kbd>N</kbd>',
-            hintHR: '<kbd>A</kbd> 왼쪽 · <kbd>T</kbd> 무승부 · <kbd>B</kbd> 오른쪽 · <kbd>N</kbd> 다음',
             cliHelp: '<code>[포지션] [핸드]</code> Enter<br>포지션: <code>utg</code> <code>mp</code> <code>co</code> <code>btn</code> <code>sb</code> <code>bb</code><br>핸드: <code>aa</code> <code>aks</code> <code>kqo</code> · vs레이즈: <code>v co aks</code>',
             navPlay: '플레이', setupTitle: '🎮 테이블 설정',
             playerCount: '인원수', aiProfile: 'AI 성향',
@@ -55,8 +50,8 @@
         },
         en: {
             title: '🃏 HoldemSsam', subtitle: 'Holdem Training for Beginners ✨', langBtn: '한',
-            navPre: 'Preflop', navRank: 'Ranking', navOuts: 'Outs', navGloss: 'Glossary',
-            tabTyping: 'Type', tabClick: 'Click', tabQuiz: 'Quiz', tabPractice: 'Practice', tabCalc: 'Calculator',
+            navPre: 'Preflop', navQuiz: 'Quiz', navOuts: 'Outs', navGloss: 'Glossary',
+            tabShortcut: 'Shortcut', tabClick: 'Click', tabPractice: 'Practice', tabCalc: 'Calculator',
             cliPlaceholder: 'utg aks', cliWaiting: 'Waiting for input...',
             position: 'Position', situation: 'Situation', myCards: 'My Cards', open: 'Open', vsRaise: 'vs Raise',
             selectPosCards: 'Select position and cards', reset: 'Reset',
@@ -67,9 +62,6 @@
             selectPos: 'Select position',
             raise: 'RAISE', call: 'CALL', fold: 'FOLD',
             rangeRaise: 'Raise', rangeCall: 'Call', rangeFold: 'Fold', rangeCurrent: 'Current',
-            hrTitle: 'Which hand wins?', hrA: 'A wins', hrTie: 'Tie', hrB: 'B wins',
-            hrStart: 'Start Ranking Quiz 🚀', hrOrder: 'Strongest to weakest:',
-            hrRankOrder: 'Straight Flush > Four of a Kind > Full House > Flush > Straight > Three of a Kind > Two Pair > One Pair > High Card',
             outsQ: 'How many outs?', outsStart: 'Start Outs Practice 🚀', outsAnswer: 'outs', confirm: 'Submit',
             rule24: 'Rule of 2 & 4', rule24t: 'Turn+River: Outs × 4 = %', rule24r: 'River only: Outs × 2 = %',
             commonOuts: 'Common Outs',
@@ -82,10 +74,8 @@
             river: 'River', turnRiver: 'Turn+River',
             noOneIn: 'No one has entered', oppRaised: 'Opponent raised',
             srcPreflop: 'Source: 6-Max Cash GTO Preflop Charts (100BB, RFI/vs Raise)',
-            srcRank: 'Source: Official Poker Hand Rankings (WSOP/WPT rules)',
             srcOuts: 'Source: Standard Outs Count (52-card deck probability)',
             hintPQ: '<kbd>R</kbd> <kbd>C</kbd> <kbd>F</kbd> · Next <kbd>N</kbd>',
-            hintHR: '<kbd>A</kbd> Left · <kbd>T</kbd> Tie · <kbd>B</kbd> Right · <kbd>N</kbd> Next',
             cliHelp: '<code>[position] [hand]</code> Enter<br>Position: <code>utg</code> <code>mp</code> <code>co</code> <code>btn</code> <code>sb</code> <code>bb</code><br>Hand: <code>aa</code> <code>aks</code> <code>kqo</code> · vs raise: <code>v co aks</code>',
             navPlay: 'Play', setupTitle: '🎮 Table Setup',
             playerCount: 'Players', aiProfile: 'AI Profile',
@@ -215,11 +205,11 @@
         document.getElementById('appSub').textContent = t('subtitle');
 
         const navItems = document.querySelectorAll('.nav-item');
-        const navKeys = ['navPre','navRank','navOuts','navPlay','navGloss'];
+        const navKeys = ['navPre','navQuiz','navOuts','navPlay','navGloss'];
         navItems.forEach((n,i) => { if(navKeys[i]) n.lastChild.textContent = t(navKeys[i]); });
 
         const preTabs = document.querySelectorAll('#pagePre .subtab');
-        ['tabTyping','tabClick','tabQuiz'].forEach((k,i) => { if(preTabs[i]) preTabs[i].textContent = t(k); });
+        ['tabShortcut','tabClick'].forEach((k,i) => { if(preTabs[i]) preTabs[i].textContent = t(k); });
 
         const outsTabs = document.querySelectorAll('#pageOuts .subtab');
         ['tabPractice','tabCalc'].forEach((k,i) => { if(outsTabs[i]) outsTabs[i].textContent = t(k); });
@@ -247,10 +237,6 @@
             document.querySelector('#pqSettings .big-btn').textContent = t('startQuiz');
         }
 
-        document.getElementById('hrStartBtn').textContent = t('hrStart');
-        const hrBtns = document.querySelectorAll('#hrBtns .q-btn');
-        hrBtns[0].textContent = t('hrA'); hrBtns[1].textContent = t('hrTie'); hrBtns[2].textContent = t('hrB');
-        if(!hr.on) document.getElementById('hrCard').innerHTML = '<div style="color:#484f58">' + t('hrTitle') + '</div>';
 
         document.getElementById('outStartBtn').textContent = t('outsStart');
         document.querySelector('#outInput .big-btn').textContent = t('confirm');
@@ -273,11 +259,10 @@
 
         const sourceNotes = document.querySelectorAll('.source-note');
         if(sourceNotes[0]) sourceNotes[0].textContent = t('srcPreflop');
-        if(sourceNotes[1]) sourceNotes[1].textContent = t('srcRank');
-        if(sourceNotes[2]) sourceNotes[2].textContent = t('srcOuts');
+        if(sourceNotes[1]) sourceNotes[1].textContent = t('srcOuts');
 
-        document.getElementById('pqHint').innerHTML = t('hintPQ');
-        document.getElementById('hrHint').innerHTML = t('hintHR');
+        const pqHintEl = document.getElementById('pqHint');
+        if(pqHintEl) pqHintEl.textContent = LANG === 'ko' ? '[R] [C] [F] · 다음 [N]' : '[R] [C] [F] · Next [N]';
 
         const calcHelpBox = document.querySelector('#outs-calc .help-box');
         if(calcHelpBox) calcHelpBox.innerHTML = `<strong>${t('rule24')}</strong><br>${t('rule24t')}<br>${t('rule24r')}<br><br><strong>${t('commonOuts')}</strong><br>${t('flushDraw')} · ${t('openEnd')} · ${t('gutshot')}<br>${t('twoPairFH')} · ${t('onePairTrips')}`;
