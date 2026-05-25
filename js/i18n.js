@@ -224,6 +224,8 @@
         const guiLabels = document.querySelectorAll('#pre-gui .section-title');
         ['position','situation','myCards'].forEach((k,i) => { if(guiLabels[i]) guiLabels[i].textContent = t(k); });
         document.querySelector('#pre-gui .reset-btn').textContent = t('reset');
+        const guiResult = document.getElementById('guiResult');
+        if(guiResult && gui && gui.pos===null) guiResult.innerHTML = `<div style="color:#484f58">${t('selectPosCards')}</div>`;
         document.getElementById('guiFacing').innerHTML = [t('open'),t('vsRaise')].map((f,i)=>`<div class="btn${i===(gui?gui.fac:0)?' active':''}" onclick="guiSetFac(${i})">${f}</div>`).join('');
 
         document.querySelectorAll('#pqBtns .q-btn')[0].textContent = t('raise');

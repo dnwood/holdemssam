@@ -237,6 +237,13 @@ assert(koSub !== enSub, 'subtitle differs between ko and en');
 assert(koNav !== enNav, 'navPre differs between ko and en');
 assert(koConfirm !== enConfirm, 'confirm differs between ko and en');
 
+// selectPosCards differs
+vm.runInContext('LANG = "ko"', context);
+const koSelectPos = vm.runInContext('t("selectPosCards")', context);
+vm.runInContext('LANG = "en"', context);
+const enSelectPos = vm.runInContext('t("selectPosCards")', context);
+assert(koSelectPos !== enSelectPos, 'selectPosCards differs between ko and en');
+
 // outsStart button text differs
 vm.runInContext('LANG = "ko"', context);
 const koOutsStart = vm.runInContext('t("outsStart")', context);
