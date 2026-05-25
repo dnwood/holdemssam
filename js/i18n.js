@@ -201,7 +201,6 @@
     function applyLang() {
         document.documentElement.lang = LANG;
         document.querySelector('.lang-toggle').textContent = t('langBtn');
-        document.getElementById('appTitle').textContent = t('title');
         document.getElementById('appSub').textContent = t('subtitle');
 
         const navItems = document.querySelectorAll('.nav-item');
