@@ -5,7 +5,7 @@
         ko: {
             title: '🃏 홀덤쌤', subtitle: '초보를 위한 홀덤 트레이닝 ✨', langBtn: 'EN',
             navPre: '프리플랍', navQuiz: '퀴즈', navOuts: '아웃츠', navGloss: '용어',
-            tabShortcut: '단축키', tabClick: '클릭', tabPractice: '연습', tabCalc: '계산기',
+            tabCli: 'CLI', tabGui: 'GUI', tabPractice: '연습', tabCalc: '계산기',
             cliPlaceholder: 'utg aks', cliWaiting: '입력 대기중...',
             position: '포지션', situation: '상황', myCards: '내 카드', open: '오픈', vsRaise: 'vs 레이즈',
             selectPosCards: '포지션과 카드 선택', reset: '초기화',
@@ -51,7 +51,7 @@
         en: {
             title: '🃏 HoldemSsam', subtitle: 'Holdem Training for Beginners ✨', langBtn: '한',
             navPre: 'Preflop', navQuiz: 'Quiz', navOuts: 'Outs', navGloss: 'Glossary',
-            tabShortcut: 'Shortcut', tabClick: 'Click', tabPractice: 'Practice', tabCalc: 'Calculator',
+            tabCli: 'CLI', tabGui: 'GUI', tabPractice: 'Practice', tabCalc: 'Calculator',
             cliPlaceholder: 'utg aks', cliWaiting: 'Waiting for input...',
             position: 'Position', situation: 'Situation', myCards: 'My Cards', open: 'Open', vsRaise: 'vs Raise',
             selectPosCards: 'Select position and cards', reset: 'Reset',
@@ -209,7 +209,7 @@
         navItems.forEach((n,i) => { if(navKeys[i]) n.lastChild.textContent = t(navKeys[i]); });
 
         const preTabs = document.querySelectorAll('#pagePre .subtab');
-        ['tabShortcut','tabClick'].forEach((k,i) => { if(preTabs[i]) preTabs[i].textContent = t(k); });
+        ['tabCli','tabGui'].forEach((k,i) => { if(preTabs[i]) preTabs[i].textContent = t(k); });
 
         const outsTabs = document.querySelectorAll('#pageOuts .subtab');
         ['tabPractice','tabCalc'].forEach((k,i) => { if(outsTabs[i]) outsTabs[i].textContent = t(k); });
