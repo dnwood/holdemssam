@@ -195,6 +195,87 @@ for(let i=0; i<100; i++) {
 }
 assert(foundOver, 'Overcards scenario generated within 100 tries');
 
+// ============ I18N TESTS ============
+console.log('\n[i18n]');
+
+// Extract I18N data via eval in context
+const koKeys = vm.runInContext('Object.keys(I18N.ko)', context);
+const enKeys = vm.runInContext('Object.keys(I18N.en)', context);
+
+const missingInEn = koKeys.filter(k => !enKeys.includes(k));
+assert(missingInEn.length === 0, `All ko keys exist in en (missing: ${missingInEn.join(', ') || 'none'})`);
+
+const missingInKo = enKeys.filter(k => !koKeys.includes(k));
+assert(missingInKo.length === 0, `All en keys exist in ko (missing: ${missingInKo.join(', ') || 'none'})`);
+
+// No empty values
+const emptyKo = vm.runInContext('Object.keys(I18N.ko).filter(k => !I18N.ko[k])', context);
+assert(emptyKo.length === 0, `No empty ko values (empty: ${emptyKo.join(', ') || 'none'})`);
+
+const emptyEn = vm.runInContext('Object.keys(I18N.en).filter(k => !I18N.en[k])', context);
+assert(emptyEn.length === 0, `No empty en values (empty: ${emptyEn.join(', ') || 'none'})`);
+
+// t() returns correct language
+vm.runInContext('LANG = "ko"', context);
+assert(vm.runInContext('t("raise")', context) === 'RAISE', 't(raise) ko = RAISE');
+assert(vm.runInContext('t("subtitle")', context).includes('초보'), 't(subtitle) ko contains 초보');
+
+vm.runInContext('LANG = "en"', context);
+assert(vm.runInContext('t("raise")', context) === 'RAISE', 't(raise) en = RAISE');
+assert(vm.runInContext('t("subtitle")', context).includes('Beginner'), 't(subtitle) en contains Beginner');
+
+// Key UI strings differ between languages
+vm.runInContext('LANG = "ko"', context);
+const koSub = vm.runInContext('t("subtitle")', context);
+const koNav = vm.runInContext('t("navPre")', context);
+const koConfirm = vm.runInContext('t("confirm")', context);
+vm.runInContext('LANG = "en"', context);
+const enSub = vm.runInContext('t("subtitle")', context);
+const enNav = vm.runInContext('t("navPre")', context);
+const enConfirm = vm.runInContext('t("confirm")', context);
+assert(koSub !== enSub, 'subtitle differs between ko and en');
+assert(koNav !== enNav, 'navPre differs between ko and en');
+assert(koConfirm !== enConfirm, 'confirm differs between ko and en');
+
+// applyLang should not throw with proper DOM stubs
+const i18nMockEl = () => ({textContent:'',innerHTML:'',placeholder:'',value:'',style:{},childNodes:[{textContent:''}],lastChild:{textContent:''},querySelectorAll:()=>mockNodeList(),querySelector:()=>i18nMockEl(),getElementById:()=>i18nMockEl(),classList:{add:()=>{},remove:()=>{},toggle:()=>false,contains:()=>false}});
+function mockNodeList() { const arr = [i18nMockEl(),i18nMockEl(),i18nMockEl(),i18nMockEl(),i18nMockEl()]; arr.forEach = Array.prototype.forEach.bind(arr); return arr; }
+const i18nDoc = {
+    querySelectorAll:()=>mockNodeList(),
+    querySelector:()=>i18nMockEl(),
+    getElementById:()=>i18nMockEl(),
+    documentElement:{lang:''},
+    addEventListener:()=>{}
+};
+const i18nContext = vm.createContext({
+    console, Math, Object, Set, Array, JSON, Number, parseInt, parseFloat, isNaN,
+    localStorage: { getItem: () => null, setItem: () => {} },
+    document: i18nDoc,
+    window: { addEventListener:()=>{} }, event: { target:{classList:{add:()=>{}}} },
+    gui: { fac: 0 }, pq: { on: false }, outs: { on: false },
+    renderGloss: ()=>{}, pqInitSettings: ()=>{}, simInitSetup: ()=>{}
+});
+const i18nFiles = ['js/i18n.js', 'js/data.js'];
+i18nFiles.forEach(f => {
+    const code = fs.readFileSync(path.join(__dirname, '..', f), 'utf8');
+    vm.runInContext(code, i18nContext);
+});
+
+// Test toggleLang switches language
+vm.runInContext('LANG = "ko"', i18nContext);
+vm.runInContext('toggleLang()', i18nContext);
+assert(vm.runInContext('LANG', i18nContext) === 'en', 'toggleLang switches ko → en');
+vm.runInContext('toggleLang()', i18nContext);
+assert(vm.runInContext('LANG', i18nContext) === 'ko', 'toggleLang switches en → ko');
+
+// applyLang runs without error in both languages
+let applyError = null;
+try {
+    vm.runInContext('LANG = "en"; applyLang()', i18nContext);
+    vm.runInContext('LANG = "ko"; applyLang()', i18nContext);
+} catch(e) { applyError = e; }
+assert(applyError === null, `applyLang() runs without error (${applyError ? applyError.message : 'ok'})`);
+
 // ============ SUMMARY ============
 console.log('\n' + '='.repeat(40));
 console.log('Results: ' + pass + ' passed, ' + fail + ' failed');

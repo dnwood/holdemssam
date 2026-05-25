@@ -237,8 +237,8 @@
         }
 
 
-        document.getElementById('outStartBtn').textContent = t('outsStart');
-        document.querySelector('#outInput .big-btn').textContent = t('confirm');
+        const outConfirmBtn = document.querySelector('#outInput .big-btn');
+        if(outConfirmBtn) outConfirmBtn.textContent = t('confirm');
 
         const calcLabels = document.querySelectorAll('#outs-calc .calc-label');
         calcLabels[0].textContent = t('pot'); calcLabels[1].textContent = t('bet'); calcLabels[2].textContent = t('outs');
