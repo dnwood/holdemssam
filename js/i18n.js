@@ -211,7 +211,7 @@
         navItems.forEach((n,i) => { if(navKeys[i]) n.lastChild.textContent = t(navKeys[i]); });
 
         const preTabs = document.querySelectorAll('#pagePre .subtab');
-        ['tabCli','tabGui'].forEach((k,i) => { if(preTabs[i]) preTabs[i].textContent = t(k); });
+        ['tabGui','tabCli'].forEach((k,i) => { if(preTabs[i]) preTabs[i].textContent = t(k); });
 
         const outsTabs = document.querySelectorAll('#pageOuts .subtab');
         ['tabPractice','tabCalc'].forEach((k,i) => { if(outsTabs[i]) outsTabs[i].textContent = t(k); });
