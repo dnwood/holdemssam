@@ -1,10 +1,11 @@
-const CACHE_NAME = 'holdemssam-v8';
+const CACHE_NAME = 'holdemssam-v9';
 const ASSETS = [
   '/',
   '/index.html',
   '/manifest.json',
   '/icon-192.png',
   '/icon-512.png',
+  '/css/style.css',
   '/js/i18n.js',
   '/js/data.js',
   '/js/app.js',
