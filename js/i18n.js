@@ -188,6 +188,7 @@
         {name:'Pot Committed',desc:'Having invested so much in the pot that folding is no longer viable'},
         {name:'Squeeze',desc:'A large 3-bet after an open-raise and one or more callers'},
         {name:'Isolation',desc:'Raising to play heads-up against a limper'},
+        {name:'Maniac',desc:'An extremely loose-aggressive player who plays almost every hand with heavy raising'},
     ];
 
     function t(key) { return I18N[LANG][key] || I18N.ko[key] || key; }
