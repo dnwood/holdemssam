@@ -189,6 +189,8 @@
         {name:'Squeeze',desc:'A large 3-bet after an open-raise and one or more callers'},
         {name:'Isolation',desc:'Raising to play heads-up against a limper'},
         {name:'Maniac',desc:'An extremely loose-aggressive player who plays almost every hand with heavy raising'},
+        {name:'Edge',desc:'An advantage over opponents. Skill edge = long-term profit from being better than the competition'},
+        {name:'Grinding',desc:'Playing long sessions with low risk to steadily accumulate profit'},
     ];
 
     function t(key) { return I18N[LANG][key] || I18N.ko[key] || key; }
