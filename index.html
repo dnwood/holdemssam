@@ -321,41 +321,27 @@
             <button class="lang-toggle" onclick="toggleLang()">EN</button>
         </div>
         <div style="text-align:center;margin-bottom:8px;">
-            <svg id="mascot" width="72" height="80" viewBox="0 0 72 80" style="filter:drop-shadow(0 3px 6px rgba(0,0,0,0.2))">
+            <svg id="mascot" width="56" height="56" viewBox="0 0 56 56" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.15))">
                 <!-- Chip body -->
-                <ellipse cx="36" cy="34" rx="26" ry="26" fill="#2da44e"/>
-                <ellipse cx="36" cy="34" rx="26" ry="26" fill="none" stroke="#1a7f37" stroke-width="2"/>
-                <ellipse cx="36" cy="34" rx="20" ry="20" fill="none" stroke="#fff" stroke-width="2" stroke-dasharray="8 5" opacity="0.6"/>
-                <!-- Chip edge notches -->
-                <rect x="10" y="32" width="6" height="4" rx="2" fill="#fff" opacity="0.7"/>
-                <rect x="56" y="32" width="6" height="4" rx="2" fill="#fff" opacity="0.7"/>
-                <rect x="34" y="8" width="4" height="6" rx="2" fill="#fff" opacity="0.7"/>
-                <rect x="34" y="54" width="4" height="6" rx="2" fill="#fff" opacity="0.7"/>
-                <!-- Face -->
-                <circle cx="28" cy="30" r="3.5" fill="#fff"/>
-                <circle cx="28" cy="30" r="2" fill="#1a1a1a"/>
-                <circle cx="29" cy="29" r="0.8" fill="#fff"/>
-                <circle cx="44" cy="30" r="3.5" fill="#fff"/>
-                <circle cx="44" cy="30" r="2" fill="#1a1a1a"/>
-                <circle cx="45" cy="29" r="0.8" fill="#fff"/>
+                <circle cx="28" cy="28" r="24" fill="#2da44e"/>
+                <circle cx="28" cy="28" r="24" fill="none" stroke="#1a7f37" stroke-width="2"/>
+                <circle cx="28" cy="28" r="17" fill="none" stroke="#fff" stroke-width="1.5" stroke-dasharray="6 4" opacity="0.5"/>
+                <!-- Edge notches -->
+                <circle cx="28" cy="4" r="3" fill="#fff" opacity="0.6"/>
+                <circle cx="28" cy="52" r="3" fill="#fff" opacity="0.6"/>
+                <circle cx="4" cy="28" r="3" fill="#fff" opacity="0.6"/>
+                <circle cx="52" cy="28" r="3" fill="#fff" opacity="0.6"/>
+                <!-- Eye (left) -->
+                <circle cx="21" cy="25" r="3" fill="#fff"/>
+                <circle cx="21" cy="25" r="1.8" fill="#1a1a1a"/>
+                <circle cx="22" cy="24" r="0.7" fill="#fff"/>
+                <!-- Wink (right) -->
+                <path d="M33 25 Q35 22 37 25" stroke="#1a1a1a" stroke-width="2" fill="none" stroke-linecap="round"/>
                 <!-- Smile -->
-                <path d="M28 40 Q36 47 44 40" stroke="#1a1a1a" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+                <path d="M21 34 Q28 40 35 34" stroke="#1a1a1a" stroke-width="2" fill="none" stroke-linecap="round"/>
                 <!-- Blush -->
-                <ellipse cx="23" cy="38" rx="3" ry="2" fill="#ff9999" opacity="0.5"/>
-                <ellipse cx="49" cy="38" rx="3" ry="2" fill="#ff9999" opacity="0.5"/>
-                <!-- Arms -->
-                <path d="M12 44 Q8 50 12 56" stroke="#2da44e" stroke-width="3" fill="none" stroke-linecap="round"/>
-                <path d="M60 44 Q64 50 60 56" stroke="#2da44e" stroke-width="3" fill="none" stroke-linecap="round"/>
-                <!-- Graduation cap -->
-                <polygon points="36,10 18,18 36,22 54,18" fill="#333"/>
-                <rect x="33" y="6" width="6" height="5" rx="1" fill="#333"/>
-                <line x1="52" y1="18" x2="54" y2="24" stroke="#ffd700" stroke-width="1.5"/>
-                <circle cx="54" cy="25" r="2" fill="#ffd700"/>
-                <!-- Legs -->
-                <rect x="28" y="58" width="5" height="10" rx="2.5" fill="#2da44e"/>
-                <rect x="39" y="58" width="5" height="10" rx="2.5" fill="#2da44e"/>
-                <ellipse cx="30.5" cy="69" rx="4" ry="2.5" fill="#1a7f37"/>
-                <ellipse cx="41.5" cy="69" rx="4" ry="2.5" fill="#1a7f37"/>
+                <circle cx="17" cy="32" r="2.5" fill="#ff9999" opacity="0.4"/>
+                <circle cx="39" cy="32" r="2.5" fill="#ff9999" opacity="0.4"/>
             </svg>
         </div>
         <h1 id="appTitle">🃏 홀덤쌤</h1>
