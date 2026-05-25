@@ -237,6 +237,8 @@
         }
 
 
+        const outStartBtn = document.getElementById('outStartBtn');
+        if(outStartBtn) outStartBtn.textContent = t('outsStart');
         const outConfirmBtn = document.querySelector('#outInput .big-btn');
         if(outConfirmBtn) outConfirmBtn.textContent = t('confirm');
 

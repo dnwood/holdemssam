@@ -237,6 +237,27 @@ assert(koSub !== enSub, 'subtitle differs between ko and en');
 assert(koNav !== enNav, 'navPre differs between ko and en');
 assert(koConfirm !== enConfirm, 'confirm differs between ko and en');
 
+// outsStart button text differs
+vm.runInContext('LANG = "ko"', context);
+const koOutsStart = vm.runInContext('t("outsStart")', context);
+vm.runInContext('LANG = "en"', context);
+const enOutsStart = vm.runInContext('t("outsStart")', context);
+assert(koOutsStart !== enOutsStart, 'outsStart differs between ko and en');
+
+// startQuiz button text differs
+vm.runInContext('LANG = "ko"', context);
+const koStartQuiz = vm.runInContext('t("startQuiz")', context);
+vm.runInContext('LANG = "en"', context);
+const enStartQuiz = vm.runInContext('t("startQuiz")', context);
+assert(koStartQuiz !== enStartQuiz, 'startQuiz differs between ko and en');
+
+// startSession button text differs
+vm.runInContext('LANG = "ko"', context);
+const koStartSession = vm.runInContext('t("startSession")', context);
+vm.runInContext('LANG = "en"', context);
+const enStartSession = vm.runInContext('t("startSession")', context);
+assert(koStartSession !== enStartSession, 'startSession differs between ko and en');
+
 // applyLang should not throw with proper DOM stubs
 const i18nMockEl = () => ({textContent:'',innerHTML:'',placeholder:'',value:'',style:{},childNodes:[{textContent:''}],lastChild:{textContent:''},querySelectorAll:()=>mockNodeList(),querySelector:()=>i18nMockEl(),getElementById:()=>i18nMockEl(),classList:{add:()=>{},remove:()=>{},toggle:()=>false,contains:()=>false}});
 function mockNodeList() { const arr = [i18nMockEl(),i18nMockEl(),i18nMockEl(),i18nMockEl(),i18nMockEl()]; arr.forEach = Array.prototype.forEach.bind(arr); return arr; }
