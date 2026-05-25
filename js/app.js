@@ -250,20 +250,63 @@
     }
 
     // ============ OUTS PRACTICE ============
-    let outs = {on:false, ans:false, correct:0, total:0, answer:0, draw:'', board:[]};
+    let outs = {on:false, ans:false, correct:0, total:0, answer:0, hand:[], board:[], drawType:'', drawDesc:'', drawDescEn:''};
 
-    const OUTS_SCENARIOS = [
-        {draw:'플러시 드로우', drawEn:'Flush Draw', desc:'같은 무늬 4장 (보드3+핸드1). 남은 같은 무늬 = 9장', descEn:'4 cards of same suit (board 3 + hand 1). Remaining same suit = 9', outs:9},
-        {draw:'오픈엔드 스트레이트', drawEn:'Open-ended Straight', desc:'양쪽으로 완성 가능한 스트레이트. 양쪽 4장씩 = 8장', descEn:'Straight draw open on both ends. 4 cards each side = 8', outs:8},
-        {draw:'거트샷 스트레이트', drawEn:'Gutshot Straight', desc:'가운데 1장 필요한 스트레이트. 4장', descEn:'Inside straight draw needing 1 middle card = 4', outs:4},
-        {draw:'투페어 → 풀하우스', drawEn:'Two Pair → Full House', desc:'투페어에서 풀하우스. 남은 4장 중 하나 = 4장', descEn:'Two pair improving to full house = 4', outs:4},
-        {draw:'원페어 → 트리플', drawEn:'One Pair → Trips', desc:'원페어에서 셋. 남은 같은 카드 = 2장', descEn:'One pair improving to three of a kind = 2', outs:2},
-        {draw:'오버카드 2장', drawEn:'Two Overcards', desc:'보드에 안 맞고 오버카드 2장. 각 3장씩 = 6장', descEn:'Two overcards, 3 each remaining = 6', outs:6},
-        {draw:'플러시+오픈엔드', drawEn:'Flush + Open-ended', desc:'플러시 드로우 + 오픈엔드. 9+6(겹치는 2장 제외) = 15장', descEn:'Flush draw + open-ended. 9+6 (minus 2 overlap) = 15', outs:15},
-        {draw:'플러시+거트샷', drawEn:'Flush + Gutshot', desc:'플러시 드로우 + 거트샷. 9+3(겹치는 1장 제외) = 12장', descEn:'Flush draw + gutshot. 9+3 (minus 1 overlap) = 12', outs:12},
-        {draw:'셋 → 풀하우스/포카드', drawEn:'Set → Full House/Quads', desc:'셋에서 풀하우스 또는 포카드. 보드 페어 6장 + 포카드 1장 = 7장', descEn:'Set to full house or quads. Board pair 6 + quad 1 = 7', outs:7},
-        {draw:'오버카드 1장', drawEn:'One Overcard', desc:'에이스 하나만 오버카드. 남은 A = 3장', descEn:'One ace as overcard. Remaining aces = 3', outs:3},
-    ];
+    function outsGenScenario() {
+        const types = ['flush','oesd','gutshot','overcards','pair-trips'];
+        const type = types[Math.floor(Math.random()*types.length)];
+        let hand=[], board=[], answer=0, drawType='', drawDesc='', drawDescEn='';
+
+        if(type==='flush') {
+            const suit = Math.floor(Math.random()*4);
+            const otherSuit = (suit+1)%4;
+            const ranks = [0,1,2,3,4,5,6,7,8,9,10,11,12].sort(()=>Math.random()-0.5);
+            hand = [{rank:ranks[0],suit},{rank:ranks[1],suit}];
+            board = [{rank:ranks[2],suit},{rank:ranks[3],suit},{rank:ranks[4],suit:otherSuit}];
+            answer = 9;
+            drawType = LANG==='en'?'Flush Draw':'플러시 드로우';
+            drawDesc = '같은 무늬 4장. 남은 같은 무늬 13-4 = 9장';
+            drawDescEn = '4 cards of same suit. Remaining: 13-4 = 9';
+        } else if(type==='oesd') {
+            const start = 1 + Math.floor(Math.random()*9);
+            const seq = [start, start+1, start+2, start+3];
+            const suits = [0,1,2,3].sort(()=>Math.random()-0.5);
+            hand = [{rank:seq[0],suit:suits[0]},{rank:seq[1],suit:suits[1]}];
+            board = [{rank:seq[2],suit:suits[2]},{rank:seq[3],suit:suits[3]},{rank:(seq[0]+7)%13,suit:suits[0]}];
+            answer = 8;
+            drawType = LANG==='en'?'Open-ended Straight Draw':'오픈엔드 스트레이트 드로우';
+            drawDesc = '양쪽으로 완성 가능. 양끝 각 4장 = 8장';
+            drawDescEn = 'Open on both ends. 4 cards each side = 8';
+        } else if(type==='gutshot') {
+            const start = 1 + Math.floor(Math.random()*9);
+            const seq = [start, start+1, start+3, start+4];
+            const suits = [0,1,2,3].sort(()=>Math.random()-0.5);
+            hand = [{rank:seq[0],suit:suits[0]},{rank:seq[1],suit:suits[1]}];
+            board = [{rank:seq[2],suit:suits[2]},{rank:seq[3],suit:suits[3]},{rank:(seq[0]+8)%13,suit:suits[0]}];
+            answer = 4;
+            drawType = LANG==='en'?'Gutshot Straight Draw':'거트샷 스트레이트 드로우';
+            drawDesc = '가운데 1장 필요. 4장';
+            drawDescEn = 'Need 1 middle card. 4 outs';
+        } else if(type==='overcards') {
+            hand = [{rank:0,suit:0},{rank:1,suit:1}];
+            const lowRanks = [5,6,7,8,9,10,11,12].sort(()=>Math.random()-0.5);
+            board = [{rank:lowRanks[0],suit:2},{rank:lowRanks[1],suit:3},{rank:lowRanks[2],suit:0}];
+            answer = 6;
+            drawType = LANG==='en'?'Two Overcards':'오버카드 2장';
+            drawDesc = '내 패(A,K)가 보드보다 높음. 페어가 되려면 A 3장 + K 3장 = 6장';
+            drawDescEn = 'Hand (A,K) higher than board. Need to pair: 3 Aces + 3 Kings = 6';
+        } else {
+            const pairRank = 2 + Math.floor(Math.random()*11);
+            hand = [{rank:pairRank,suit:0},{rank:pairRank,suit:1}];
+            const others = [0,1,2,3,4,5,6,7,8,9,10,11,12].filter(r=>r!==pairRank).sort(()=>Math.random()-0.5);
+            board = [{rank:others[0],suit:2},{rank:others[1],suit:3},{rank:others[2],suit:0}];
+            answer = 2;
+            drawType = LANG==='en'?'Pair → Three of a Kind':'원페어 → 트리플';
+            drawDesc = '포켓페어에서 셋 만들기. 남은 같은 카드 = 2장';
+            drawDescEn = 'Pocket pair to set. 2 remaining cards of same rank';
+        }
+        return {hand, board, answer, drawType, drawDesc, drawDescEn};
+    }
 
     function outStart() {
         outs.on=true; outs.correct=0; outs.total=0;
@@ -277,18 +320,18 @@
         document.getElementById('outInput').style.display='block';
         document.getElementById('outsNum').value='';
 
-        const scenario = OUTS_SCENARIOS[Math.floor(Math.random()*OUTS_SCENARIOS.length)];
-        outs.answer = scenario.outs;
-        outs.draw = scenario.draw;
-        outs.desc = scenario.desc;
-        outs.descEn = scenario.descEn;
+        const s = outsGenScenario();
+        outs.answer = s.answer;
+        outs.drawType = s.drawType;
+        outs.drawDesc = s.drawDesc;
+        outs.drawDescEn = s.drawDescEn;
 
-        const ss = ['♠','♥','♦','♣'];
-        const board = [];
-        for(let i=0;i<3;i++) board.push({r:RANKS[Math.floor(Math.random()*13)], s:Math.floor(Math.random()*4)});
+        const handHtml = s.hand.map(c=>`<div class="board-card ${SUITS[c.suit].c}">${dr(RANKS[c.rank])}${SUITS[c.suit].s}</div>`).join('');
+        const boardHtml = s.board.map(c=>`<div class="board-card ${SUITS[c.suit].c}">${dr(RANKS[c.rank])}${SUITS[c.suit].s}</div>`).join('');
 
-        const drawName = LANG==='en' ? scenario.drawEn : scenario.draw;
-        document.getElementById('outCard').innerHTML=`<div class="situation">${drawName}</div><div class="board-cards">${board.map(c=>`<div class="board-card ${SUITS[c.s].c}">${dr(c.r)}${SUITS[c.s].s}</div>`).join('')}</div><div style="color:#8b949e;font-size:0.8rem;">${t('outsQ')}</div>`;
+        const myHandLabel = LANG==='en'?'My Hand':'내 패';
+        const boardLabel = LANG==='en'?'Board':'보드';
+        document.getElementById('outCard').innerHTML=`<div class="situation">${s.drawType}</div><div style="margin:10px 0;"><div style="color:var(--text-muted);font-size:0.7rem;margin-bottom:4px;">${myHandLabel}</div><div class="board-cards">${handHtml}</div></div><div style="margin:10px 0;"><div style="color:var(--text-muted);font-size:0.7rem;margin-bottom:4px;">${boardLabel}</div><div class="board-cards">${boardHtml}</div></div><div style="color:var(--text-muted);font-size:0.8rem;margin-top:8px;">${t('outsQ')}</div>`;
         document.getElementById('outsNum').focus();
     }
 
@@ -303,7 +346,8 @@
         el.style.display='block';
         el.className='feedback '+(ok?'correct':'wrong');
         const pct2 = outs.answer*2, pct4=outs.answer*4;
-        el.innerHTML=`<div class="action-text ${ok?'correct':'wrong'}">${ok?t('correct'):t('wrong')}</div><div class="detail-text">${outs.answer} ${t('outsAnswer')}</div><div class="detail-text" style="margin-top:8px;color:${ok?'#7ee787':'#f0883e'};">${LANG==='en'?outs.descEn:outs.desc}</div><div class="detail-text" style="margin-top:6px;">${t('rule24')}: ${t('river')} ${pct2}% · ${t('turnRiver')} ${pct4}%</div><button class="big-btn" onclick="outNext()" style="max-width:200px;">${t('next')} (N)</button>`;
+        const desc = LANG==='en'?outs.drawDescEn:outs.drawDesc;
+        el.innerHTML=`<div class="action-text ${ok?'correct':'wrong'}">${ok?t('correct'):t('wrong')}</div><div class="detail-text">${outs.answer} ${t('outsAnswer')}</div><div class="detail-text" style="margin-top:8px;color:${ok?'var(--accent)':'#f0883e'};">${desc}</div><div class="detail-text" style="margin-top:6px;">${t('rule24')}: ${t('river')} ${pct2}% · ${t('turnRiver')} ${pct4}%</div><button class="big-btn" onclick="outNext()" style="max-width:200px;">${t('next')} (N)</button>`;
         document.getElementById('outInput').style.display='none';
         document.getElementById('outScore').textContent=`${outs.correct}/${outs.total}`;
         document.getElementById('outAcc').textContent=outs.total?Math.round(outs.correct/outs.total*100)+'%':'-';
