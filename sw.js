@@ -1,14 +1,14 @@
-const CACHE_NAME = 'holdemssam-v7';
+const CACHE_NAME = 'holdemssam-v8';
 const ASSETS = [
-  '/holdemssam/',
-  '/holdemssam/index.html',
-  '/holdemssam/manifest.json',
-  '/holdemssam/icon-192.png',
-  '/holdemssam/icon-512.png',
-  '/holdemssam/js/i18n.js',
-  '/holdemssam/js/data.js',
-  '/holdemssam/js/app.js',
-  '/holdemssam/js/simulator.js'
+  '/',
+  '/index.html',
+  '/manifest.json',
+  '/icon-192.png',
+  '/icon-512.png',
+  '/js/i18n.js',
+  '/js/data.js',
+  '/js/app.js',
+  '/js/simulator.js'
 ];
 
 self.addEventListener('install', (e) => {
