@@ -4,7 +4,7 @@
     const I18N = {
         ko: {
             title: '🃏 홀덤쌤', subtitle: '초보를 위한 홀덤 트레이닝 ✨', langBtn: 'EN',
-            navPre: '프리플랍', navQuiz: '퀴즈', navOuts: '아웃츠', navGloss: '용어',
+            navPre: '프리플랍', navQuiz: '퀴즈', navOuts: '아웃츠', navGloss: '리소스',
             tabCli: 'CLI', tabGui: 'GUI', tabPractice: '연습', tabCalc: '계산기',
             cliPlaceholder: 'utg aks', cliWaiting: '입력 대기중...',
             position: '포지션', situation: '상황', myCards: '내 카드', open: '오픈', vsRaise: 'vs 레이즈',
@@ -50,7 +50,7 @@
         },
         en: {
             title: '🃏 HoldemSsam', subtitle: 'Holdem Training for Beginners ✨', langBtn: '한',
-            navPre: 'Preflop', navQuiz: 'Quiz', navOuts: 'Outs', navGloss: 'Glossary',
+            navPre: 'Preflop', navQuiz: 'Quiz', navOuts: 'Outs', navGloss: 'Resources',
             tabCli: 'CLI', tabGui: 'GUI', tabPractice: 'Practice', tabCalc: 'Calculator',
             cliPlaceholder: 'utg aks', cliWaiting: 'Waiting for input...',
             position: 'Position', situation: 'Situation', myCards: 'My Cards', open: 'Open', vsRaise: 'vs Raise',
