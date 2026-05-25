@@ -132,6 +132,69 @@ assert(gtoAA === 'raise', 'GTO: raise AA from UTG');
 const gtoJunk = gtoRecommendPreflop('72o', 'UTG', false);
 assert(gtoJunk === 'fold', 'GTO: fold 72o from UTG');
 
+// ============ OUTS SCENARIOS ============
+console.log('\n[Outs Scenarios]');
+
+// Load app.js in a context with enough DOM stubs
+const mockEl = () => ({style:{},textContent:'',innerHTML:'',value:'',focus:()=>{},querySelectorAll:()=>[],querySelector:()=>mockEl(),addEventListener:()=>{},classList:{add:()=>{},remove:()=>{},toggle:()=>false,contains:()=>false},children:[],childNodes:[{textContent:''}],lastChild:{textContent:''},getBoundingClientRect:()=>({})});
+const appContext = vm.createContext({
+    console, Math, Object, Set, Array, JSON, Number, parseInt, parseFloat, isNaN,
+    localStorage: { getItem: () => null, setItem: () => {} },
+    document: { querySelectorAll:()=>[], querySelector:()=>mockEl(), getElementById:()=>mockEl(), documentElement:{lang:''}, addEventListener:()=>{} },
+    window: { addEventListener:()=>{} }, event: { target:{classList:{add:()=>{}}} }
+});
+const appFiles = ['js/i18n.js', 'js/data.js', 'js/app.js'];
+appFiles.forEach(f => {
+    const code = fs.readFileSync(path.join(__dirname, '..', f), 'utf8');
+    vm.runInContext(code, appContext);
+});
+
+const { outsGenScenario } = appContext;
+
+// Test: outsGenScenario returns valid structure
+for(let i=0; i<20; i++) {
+    const s = outsGenScenario();
+    assert(s.hand.length === 2, `Scenario ${i+1}: hand has 2 cards`);
+    assert(s.board.length === 3, `Scenario ${i+1}: board has 3 cards`);
+    assert(typeof s.answer === 'number' && s.answer > 0, `Scenario ${i+1}: answer is positive number (${s.answer})`);
+    assert([2,4,6,8,9].includes(s.answer), `Scenario ${i+1}: answer is valid outs count (${s.answer})`);
+
+    // Verify no duplicate cards
+    const allCards = [...s.hand, ...s.board];
+    const cardKeys = allCards.map(c => `${c.rank}-${c.suit}`);
+    const unique = new Set(cardKeys);
+    assert(unique.size === 5, `Scenario ${i+1}: all 5 cards unique`);
+}
+
+// Test flush draw specifically
+let foundFlush = false;
+for(let i=0; i<100; i++) {
+    const s = outsGenScenario();
+    if(s.answer === 9) {
+        const suitCounts = [0,0,0,0];
+        [...s.hand, ...s.board].forEach(c => suitCounts[c.suit]++);
+        const maxSuit = Math.max(...suitCounts);
+        assert(maxSuit === 4, 'Flush draw: 4 cards of same suit');
+        foundFlush = true;
+        break;
+    }
+}
+assert(foundFlush, 'Flush draw scenario generated within 100 tries');
+
+// Test overcards
+let foundOver = false;
+for(let i=0; i<100; i++) {
+    const s = outsGenScenario();
+    if(s.answer === 6) {
+        assert(s.hand[0].rank === 0 && s.hand[1].rank === 1, 'Overcards: hand is A,K');
+        const boardHighest = Math.min(...s.board.map(c=>c.rank));
+        assert(boardHighest > 1, 'Overcards: board cards all lower than K');
+        foundOver = true;
+        break;
+    }
+}
+assert(foundOver, 'Overcards scenario generated within 100 tries');
+
 // ============ SUMMARY ============
 console.log('\n' + '='.repeat(40));
 console.log('Results: ' + pass + ' passed, ' + fail + ' failed');
