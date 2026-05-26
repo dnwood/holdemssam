@@ -44,7 +44,7 @@
                         <input type="text" class="cli-input" id="cliInput" placeholder="utg aks" autofocus autocomplete="off" spellcheck="false">
                     </div>
                 </div>
-                <div class="result-box" id="cliResult"><div style="color:#484f58">입력 대기중...</div></div>
+                <div class="result-box" id="cliResult"></div>
                 <div id="cliHistory" style="margin-top:8px;max-height:120px;overflow-y:auto;font-family:monospace;"></div>
                 <div class="card-box help-box" style="margin-top:12px;">
                     <code>[포지션] [핸드]</code> Enter<br>
@@ -62,7 +62,7 @@
                 <div class="cards-display" id="guiSelected"></div>
                 <div class="suit-row" id="guiSuits"></div>
                 <div class="cards-grid" id="guiGrid"></div>
-                <div class="result-box" id="guiResult" style="margin-top:12px;"><div style="color:#484f58">포지션과 카드 선택</div></div>
+                <div class="result-box" id="guiResult" style="margin-top:12px;"></div>
                 <button class="reset-btn" onclick="guiReset()">초기화</button>
             </div>
         </div>
@@ -74,7 +74,7 @@
             </div>
             <div class="source-note">기준: 6-Max Cash GTO Preflop Charts (100BB, RFI/vs Raise)</div>
             <div class="score-bar"><span class="score-label">점수: <span class="score-value" id="pqScore">0/0</span></span><span class="score-label">정답률: <span class="score-value" id="pqAcc">-</span></span><span class="streak-text" id="pqStreak"></span></div>
-            <div class="quiz-card" id="pqCard"><div style="color:#484f58">설정 후 시작</div></div>
+            <div class="quiz-card" id="pqCard"></div>
             <div class="quiz-btns" id="pqBtns" style="display:none;">
                 <button class="q-btn raise" onclick="pqAnswer('raise')">RAISE</button>
                 <button class="q-btn call" onclick="pqAnswer('call')">CALL</button>
@@ -108,7 +108,7 @@
                 <div id="outStartArea"><button class="big-btn" id="outStartBtn" onclick="outStart()">아웃츠 연습 시작 🚀</button></div>
                 <div id="outGameArea" style="display:none;">
                     <div class="score-bar"><span class="score-label">점수: <span class="score-value" id="outScore">0/0</span></span><span class="score-label">정답률: <span class="score-value" id="outAcc">-</span></span></div>
-                    <div class="quiz-card" id="outCard"><div style="color:#484f58">아웃츠가 몇 개?</div></div>
+                    <div class="quiz-card" id="outCard"></div>
                     <div style="text-align:center;margin-bottom:12px;" id="outInput">
                         <input type="number" class="outs-input" id="outsNum" placeholder="?" min="0" max="20">
                         <button class="big-btn" onclick="outSubmit()" style="max-width:200px;margin:8px auto 0;">확인</button>
