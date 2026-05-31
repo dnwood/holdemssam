@@ -193,6 +193,11 @@
         {name:'Maniac',desc:'An extremely loose-aggressive player who plays almost every hand with heavy raising'},
         {name:'Edge',desc:'An advantage over opponents. Skill edge = long-term profit from being better than the competition'},
         {name:'Grinding',desc:'Playing long sessions with low risk to steadily accumulate profit'},
+        {name:'Backdoor',desc:'A draw needing both turn and river cards to complete. Low probability but adds extra equity'},
+        {name:'Floating',desc:'Calling a C-bet with a weak hand intending to bluff on a later street'},
+        {name:'Cooler',desc:'A situation where both players have strong hands and losing is unavoidable'},
+        {name:'Exploit',desc:'Deviating from GTO to maximize profit against a specific opponent\'s weakness'},
+        {name:'Chop',desc:'Splitting the pot or returning blinds. In tournaments, agreeing to divide prize money'},
     ];
 
     function t(key) { return I18N[LANG][key] || I18N.ko[key] || key; }

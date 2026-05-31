@@ -105,7 +105,7 @@
         {name:'드로잉 데드 (Drawing Dead)',desc:'어떤 카드가 와도 이길 수 없는 상태'},
         {name:'히어로 콜 (Hero Call)',desc:'비이성적 약한 핸드로 상대방의 블러프를 잡아내는 콜'},
         {name:'오리지널 (Original)',desc:'프리플랍에서 베팅을 먼저 했던 플레이어'},
-        {name:'머크 (Muck)',desc:'카드를 보여주지 않고 파 마이딩 인정하는 것'},
+        {name:'머크 (Muck)',desc:'카드를 보여주지 않고 폴드하는 것. 쇼다운에서 핸드를 공개하지 않고 포기'},
         {name:'프리즈 아웃 (Freeze Out)',desc:'한번 아웃되면 재참가가 불가능한 토너먼트 형식'},
         {name:'TPTK (Top Pair Top Kicker)',desc:'보드 최고 카드와 페어 + 최고 키커 (예: AK으로 K 보드에서)'},
         {name:'VPIP',desc:'Voluntarily Put Money In Pot. 자발적으로 팟에 참여하는 비율'},
@@ -121,5 +121,10 @@
         {name:'매니악 (Maniac)',desc:'거의 모든 핸드를 초공격적으로 플레이하는 사람. LAG의 극단적 형태'},
         {name:'엣지 (Edge)',desc:'상대보다 가진 우위/이점. 스킬 엣지 = 실력 차이에서 오는 장기적 수익'},
         {name:'그라인딩 (Grinding)',desc:'큰 리스크 없이 꾸준히 오래 플레이하며 수익을 쌓는 것'},
+        {name:'백도어 (Backdoor)',desc:'턴과 리버 2장이 모두 필요한 드로우. 확률은 낮지만 추가 에퀴티로 작용'},
+        {name:'플로팅 (Floating)',desc:'상대 C-bet을 약한 핸드로 콜한 뒤 다음 스트릿에서 블러프로 팟을 가져오는 플레이'},
+        {name:'쿨러 (Cooler)',desc:'양쪽 다 강한 핸드라 폴드가 불가능한데 한쪽이 질 수밖에 없는 상황'},
+        {name:'익스플로잇 (Exploit)',desc:'상대의 약점을 파악해 GTO에서 벗어나 최대 이득을 취하는 전략'},
+        {name:'찹 (Chop)',desc:'팟을 나누거나 블라인드를 회수하는 것. 토너먼트에서는 상금 분배 합의'},
     ];
 
