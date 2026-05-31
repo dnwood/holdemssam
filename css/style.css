@@ -185,6 +185,9 @@ h1 { font-size: 1.3rem; color: var(--accent); text-align: center; margin-bottom:
 .q-btn.a-btn { border-color: var(--blue); color: var(--blue); }
 .q-btn.b-btn { border-color: #d2a8ff; color: #d2a8ff; }
 
+#gqBtns { flex-direction: column; align-items: stretch; }
+#gqBtns .gq-opt { text-align: left; font-weight: 500; font-size: 0.85rem; white-space: normal; min-width: unset; }
+
 /* Quiz hand display */
 .quiz-card {
     background: var(--card-bg); border: 2px solid var(--card-border); border-radius: 16px;

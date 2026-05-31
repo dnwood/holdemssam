@@ -24,7 +24,8 @@
             potCalc: '🧮 팟 오즈 계산기', pot: '팟', bet: '벳', outs: '아웃츠', calc: '계산',
             potBetReq: '팟과 벳을 입력하세요', needed: '필요 확률:',
             callOkRiver: '리버만 남아도 콜 OK', callOkTurn: '턴+리버면 콜 OK', foldMath: '폴드가 수학적으로 맞음',
-            glossSearch: '용어 검색...',
+            glossSearch: '용어 검색...', glossTab: '용어집', glossQuizTab: '퀴즈',
+            gqStart: '용어 퀴즈 시작 🚀', gqWhichDesc: '이 용어의 뜻은?', gqWhichTerm: '이 설명에 해당하는 용어는?',
             river: '리버', turnRiver: '턴+리버',
             noOneIn: '아무도 안 들어왔다', oppRaised: '상대가 레이즈했다',
             srcPreflop: '기준: 6-Max Cash GTO Preflop Charts (100BB, RFI/vs Raise)',
@@ -70,7 +71,8 @@
             potCalc: '🧮 Pot Odds Calculator', pot: 'Pot', bet: 'Bet', outs: 'Outs', calc: 'Calculate',
             potBetReq: 'Enter pot and bet', needed: 'Required equity:',
             callOkRiver: 'Call OK (river only)', callOkTurn: 'Call OK (turn+river)', foldMath: 'Fold is mathematically correct',
-            glossSearch: 'Search terms...',
+            glossSearch: 'Search terms...', glossTab: 'Glossary', glossQuizTab: 'Quiz',
+            gqStart: 'Start Term Quiz 🚀', gqWhichDesc: 'What does this term mean?', gqWhichTerm: 'Which term matches this description?',
             river: 'River', turnRiver: 'Turn+River',
             noOneIn: 'No one has entered', oppRaised: 'Opponent raised',
             srcPreflop: 'Source: 6-Max Cash GTO Preflop Charts (100BB, RFI/vs Raise)',
@@ -275,6 +277,12 @@
 
         document.getElementById('glossSearch').placeholder = t('glossSearch');
         renderGloss(LANG === 'en' ? GLOSSARY_EN : GLOSSARY);
+
+        const glossTabs = document.querySelectorAll('#pageGloss .subtab');
+        if(glossTabs[0]) glossTabs[0].textContent = t('glossTab');
+        if(glossTabs[1]) glossTabs[1].textContent = t('glossQuizTab');
+        const gqStartBtn = document.getElementById('gqStartBtn');
+        if(gqStartBtn) gqStartBtn.textContent = t('gqStart');
 
         // Play page
         const pst = document.getElementById('playSetupTitle');

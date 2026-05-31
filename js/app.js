@@ -10,7 +10,7 @@
     }
 
     function subTab(page, sub) {
-        const panel = document.getElementById('page' + {pre:'Pre',outs:'Outs'}[page]);
+        const panel = document.getElementById('page' + {pre:'Pre',outs:'Outs',gloss:'Gloss'}[page]);
         panel.querySelectorAll('.subtab').forEach(t => t.classList.remove('active'));
         panel.querySelectorAll('.subpanel').forEach(p => p.classList.remove('active'));
         event.target.classList.add('active');
@@ -385,6 +385,107 @@
         const q = document.getElementById('glossSearch').value.toLowerCase();
         const g = getGlossary();
         renderGloss(q ? g.filter(t=>t.name.toLowerCase().includes(q)||t.desc.toLowerCase().includes(q)) : g);
+    }
+
+    // ============ GLOSSARY QUIZ ============
+    let gq = {on:false, ans:false, correct:0, total:0, mode:null, term:null, choices:[], answer:null};
+
+    function gqStart() {
+        gq = {on:true, ans:false, correct:0, total:0, term:null, choices:[], answer:null};
+        document.getElementById('gqStartArea').style.display = 'none';
+        document.getElementById('gqBtns').style.display = '';
+        document.getElementById('gqScore').textContent = '0/0';
+        document.getElementById('gqAcc').textContent = '-';
+        gqNext();
+    }
+
+    function gqNext() {
+        gq.ans = false;
+        document.getElementById('gqFeedback').style.display = 'none';
+        const g = getGlossary();
+        const mode = Math.random() < 0.5 ? 'name2desc' : 'desc2name';
+        const idx = Math.floor(Math.random() * g.length);
+        gq.term = g[idx];
+        gq.mode = mode;
+
+        let distractors = g.filter((_,i) => i !== idx);
+        for(let i = distractors.length - 1; i > 0; i--) { const j = Math.floor(Math.random()*(i+1)); [distractors[i],distractors[j]] = [distractors[j],distractors[i]]; }
+        distractors = distractors.slice(0, 3);
+
+        const options = [gq.term, ...distractors];
+        for(let i = options.length - 1; i > 0; i--) { const j = Math.floor(Math.random()*(i+1)); [options[i],options[j]] = [options[j],options[i]]; }
+        gq.choices = options;
+        gq.answer = options.indexOf(gq.term);
+
+        const card = document.getElementById('gqCard');
+        if(mode === 'name2desc') {
+            card.textContent = '';
+            const nameEl = document.createElement('div');
+            nameEl.style.cssText = 'font-size:1.2rem;font-weight:bold;margin-bottom:4px;';
+            nameEl.textContent = gq.term.name;
+            const hintEl = document.createElement('div');
+            hintEl.style.cssText = 'color:#8b949e;font-size:0.8rem;';
+            hintEl.textContent = t('gqWhichDesc');
+            card.appendChild(nameEl);
+            card.appendChild(hintEl);
+        } else {
+            card.textContent = '';
+            const descEl = document.createElement('div');
+            descEl.style.cssText = 'font-size:1rem;margin-bottom:4px;';
+            descEl.textContent = gq.term.desc;
+            const hintEl = document.createElement('div');
+            hintEl.style.cssText = 'color:#8b949e;font-size:0.8rem;';
+            hintEl.textContent = t('gqWhichTerm');
+            card.appendChild(descEl);
+            card.appendChild(hintEl);
+        }
+
+        const btns = document.getElementById('gqBtns');
+        btns.textContent = '';
+        options.forEach((o, i) => {
+            const btn = document.createElement('button');
+            btn.className = 'q-btn gq-opt';
+            btn.textContent = mode === 'name2desc' ? o.desc : o.name;
+            btn.onclick = () => gqAnswer(i);
+            btns.appendChild(btn);
+        });
+    }
+
+    function gqAnswer(i) {
+        if(gq.ans) return;
+        gq.ans = true;
+        gq.total++;
+        const isCorrect = i === gq.answer;
+        if(isCorrect) gq.correct++;
+
+        document.getElementById('gqScore').textContent = gq.correct + '/' + gq.total;
+        document.getElementById('gqAcc').textContent = gq.total ? Math.round(gq.correct/gq.total*100)+'%' : '-';
+
+        const btns = document.querySelectorAll('#gqBtns .gq-opt');
+        btns.forEach((b, idx) => {
+            if(idx === gq.answer) b.style.border = '2px solid #3fb950';
+            else if(idx === i && !isCorrect) b.style.border = '2px solid #f85149';
+            b.disabled = true;
+        });
+
+        const fb = document.getElementById('gqFeedback');
+        fb.style.display = '';
+        if(isCorrect) {
+            fb.className = 'feedback correct';
+            fb.textContent = t('correct');
+        } else {
+            fb.className = 'feedback wrong';
+            fb.textContent = '';
+            const span = document.createElement('span');
+            span.textContent = t('wrong');
+            const detail = document.createElement('div');
+            detail.style.cssText = 'margin-top:6px;font-size:0.85rem;';
+            detail.textContent = gq.mode === 'name2desc' ? gq.term.desc : gq.term.name;
+            fb.appendChild(span);
+            fb.appendChild(detail);
+        }
+
+        setTimeout(() => { if(gq.ans) gqNext(); }, 2000);
     }
 
     // ============ KEYBOARD SHORTCUTS ============

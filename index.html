@@ -142,8 +142,23 @@
             <div class="page-mascot">
                 <svg width="40" height="40" viewBox="0 0 40 40"><rect x="6" y="6" width="28" height="28" rx="4" fill="#7ee787" opacity="0.15"/><text x="20" y="26" text-anchor="middle" font-size="18">📖</text></svg>
             </div>
-            <input type="text" class="search-input" id="glossSearch" placeholder="용어 검색..." oninput="filterGloss()">
-            <div class="term-list" id="glossList"></div>
+            <div class="subtabs">
+                <div class="subtab active" onclick="subTab('gloss','list')">용어집</div>
+                <div class="subtab" onclick="subTab('gloss','quiz')">퀴즈</div>
+            </div>
+
+            <div class="subpanel active" id="gloss-list">
+                <input type="text" class="search-input" id="glossSearch" placeholder="용어 검색..." oninput="filterGloss()">
+                <div class="term-list" id="glossList"></div>
+            </div>
+
+            <div class="subpanel" id="gloss-quiz">
+                <div class="score-bar"><span class="score-label">점수: <span class="score-value" id="gqScore">0/0</span></span><span class="score-label">정답률: <span class="score-value" id="gqAcc">-</span></span></div>
+                <div class="quiz-card" id="gqCard"></div>
+                <div class="quiz-btns" id="gqBtns" style="display:none;"></div>
+                <div class="feedback" id="gqFeedback" style="display:none;"></div>
+                <div id="gqStartArea"><button class="big-btn" id="gqStartBtn" onclick="gqStart()">용어 퀴즈 시작 🚀</button></div>
+            </div>
         </div>
 
         <!-- ===== Play Page ===== -->
