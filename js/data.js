@@ -209,6 +209,51 @@
         {q:'What is the scarcity principle?',a:'Limited availability makes things more desirable',d:['People want what is cheapest','Abundance increases value','Common items are most attractive']},
         {q:'What is deindividuation?',a:'Losing sight of our own individuality and solely copying others',d:['Developing a unique identity','Standing out from the crowd','Maintaining personal values in a group']},
         {q:'Social identity theory states that:',a:'People maintain a positive attitude for their ingroup by seeing outgroups in a more negative light',d:['Everyone has equal attitudes toward all groups','Outgroups are always viewed positively','Identity is solely determined by individual traits']},
+
+        // --- HARDER QUESTIONS: explanation → concept ---
+        {q:'A researcher finds that students who sleep more get higher grades. She concludes that sleep causes better grades. What is the flaw in her reasoning?',a:'Correlation does not imply causation — a third variable could explain both',d:['She used too small a sample','She should have used a survey instead','Her hypothesis was wrong']},
+        {q:'You blame your poor exam grade on an unfair test, but credit your good grade to your intelligence. This illustrates:',a:'Self-serving attributions',d:['Fundamental attribution error','Cognitive dissonance','False consensus effect']},
+        {q:'Your friend is late to dinner. You immediately think "she\'s so rude and inconsiderate" rather than considering she might be stuck in traffic. This is an example of:',a:'Fundamental attribution error',d:['Self-serving attributions','Normative social influence','Pluralistic ignorance']},
+        {q:'A charity asks you to donate $500. You say no. They then ask for $5 and you agree. Which compliance technique was used?',a:'Door-in-the-face',d:['Foot-in-the-door','Social proof','Scarcity principle']},
+        {q:'You sign a petition supporting a cause. A week later, the same group asks you to volunteer 10 hours. You feel compelled to agree. This is:',a:'Foot-in-the-door',d:['Door-in-the-face','Cognitive dissonance','Normative social influence']},
+        {q:'Everyone in the lecture hall looks calm during a fire alarm, so you assume it\'s not a real emergency. This demonstrates:',a:'Pluralistic ignorance',d:['Bystander effect','Diffusion of responsibility','Deindividuation']},
+        {q:'A study finds that ice cream sales and drowning rates are positively correlated. The most likely explanation is:',a:'A third variable (hot weather) causes both',d:['Ice cream causes drowning','Drowning causes people to buy ice cream','The correlation is statistically insignificant']},
+        {q:'A researcher gives one group caffeine and another group a sugar pill, then measures reaction time. The sugar pill group is the:',a:'Placebo condition',d:['Experimental group','Control group with no treatment','Independent variable']},
+        {q:'You enjoy thinking deeply about political issues and tend to change your mind only when presented with strong evidence. You are using the:',a:'Central route of the ELM',d:['Peripheral route of the ELM','Normative social influence','Cognitive dissonance reduction']},
+        {q:'You buy a product because a celebrity endorsed it, without evaluating the product itself. This is an example of:',a:'Peripheral route of the ELM',d:['Central route of the ELM','Informational social influence','Cognitive dissonance']},
+        {q:'After buying an expensive car, you feel anxious about whether you made the right choice and start emphasizing its good qualities. This is:',a:'Post-decision dissonance (cognitive dissonance)',d:['Self-serving attribution','Fundamental attribution error','Groupthink']},
+        {q:'In a group project, you put in less effort because you know 4 other people are also working on it. This is:',a:'Social loafing',d:['Social facilitation','Diffusion of responsibility','Deindividuation']},
+        {q:'You perform better on a simple, well-practiced task when people are watching you. This is:',a:'Social facilitation',d:['Social loafing','Group polarization','Normative social influence']},
+        {q:'A researcher assigns participants to groups using a coin flip. This is an example of:',a:'Random assignment',d:['Random sampling','Stratified sampling','Convenience sampling']},
+        {q:'A researcher selects names from a hat containing all students at a university. This is an example of:',a:'Random sampling',d:['Random assignment','Naturalistic observation','Purposive sampling']},
+
+        // --- HARDER: "Which is NOT" / distinction questions ---
+        {q:'Which of the following is NOT one of the three types of validity?',a:'Predictive validity',d:['Construct validity','External validity','Internal validity']},
+        {q:'Which is NOT one of the three ethical principles guiding IRB decisions?',a:'Transparency',d:['Autonomy','Beneficence','Justice']},
+        {q:'Which is NOT a reason a study might fail to replicate?',a:'The original sample was too large',d:['False positive','P-hacking','Small samples']},
+        {q:'Which is NOT a compliance strategy?',a:'Cognitive dissonance',d:['Door-in-the-face','Foot-in-the-door','Scarcity principle']},
+        {q:'Which factor does NOT drive attraction according to the textbook?',a:'Opposites attract',d:['Proximity','Mere exposure','Similarity']},
+        {q:'Which is NOT a component of an attitude?',a:'Behavioral history',d:['Affective feeling','Cognitive belief','Behavioral motivation']},
+
+        // --- HARDER: comparing similar concepts ---
+        {q:'What distinguishes informational social influence from normative social influence?',a:'Informational: we conform because we believe others are correct. Normative: we conform to fit in.',d:['Informational is about groups; normative is about individuals','They are the same concept','Informational is conscious; normative is unconscious']},
+        {q:'What is the key difference between a set (three of a kind from a pocket pair) and the bystander effect?',a:'They are from completely different domains and cannot be compared',d:['Both involve group dynamics','Sets are a form of social loafing','The bystander effect is a poker term']},
+        {q:'How does prejudice differ from discrimination?',a:'Prejudice is a negative attitude; discrimination is treating people differently based on group membership',d:['They mean the same thing','Prejudice is behaviour; discrimination is an attitude','Discrimination causes prejudice']},
+        {q:'What distinguishes the experimental method from correlational research?',a:'Experiments manipulate variables to establish causation; correlations only measure relationships',d:['Experiments use larger samples','Correlations are more accurate','There is no meaningful difference']},
+        {q:'How does a confound threaten internal validity?',a:'It introduces an alternative explanation — groups differ on something other than the IV',d:['It makes the sample non-representative','It reduces statistical significance','It prevents replication']},
+        {q:'What is the difference between descriptive statistics and inferential statistics?',a:'Descriptive summarize the data; inferential draw conclusions about the broader population',d:['Descriptive are more accurate','Inferential use smaller samples','They are interchangeable terms']},
+
+        // --- HARDER: application / scenario ---
+        {q:'A researcher studies whether violent video games cause aggression by randomly assigning kids to play violent or non-violent games, then measuring aggression. The IV is:',a:'Type of video game (violent vs. non-violent)',d:['Level of aggression','The children\'s age','The researcher\'s hypothesis']},
+        {q:'In the same study, the DV is:',a:'The measured level of aggression',d:['Type of video game','Random assignment method','Whether parents consented']},
+        {q:'A group of friends discuss politics and all agree the government is doing a bad job. After the discussion, their negative views become even stronger. This is:',a:'Group polarization',d:['Groupthink','Cognitive dissonance','Deindividuation']},
+        {q:'A company makes only 100 units of a product and advertises "limited edition." Customers rush to buy. This exploits:',a:'Scarcity principle',d:['Social proof','Foot-in-the-door','Door-in-the-face']},
+        {q:'A participant in a study is told they will receive an experimental drug but actually receives a sugar pill. They report feeling better. This demonstrates:',a:'Placebo effect',d:['Confound','Hawthorne effect','Demand characteristics']},
+        {q:'You assume most people share your preference for pineapple on pizza. This is:',a:'False consensus effect',d:['Fundamental attribution error','Self-serving attribution','Groupthink']},
+        {q:'A jury is under time pressure and nobody wants to be the dissenter, so they quickly reach a unanimous guilty verdict without fully examining the evidence. This is:',a:'Groupthink',d:['Group polarization','Social loafing','Conformity']},
+        {q:'Someone collapses in a crowded mall. Everyone looks around but nobody calls 911 because each person assumes someone else already did. This is:',a:'Diffusion of responsibility',d:['Pluralistic ignorance','Social loafing','Deindividuation']},
+        {q:'A researcher wants to know if therapy reduces anxiety. She measures anxiety, provides 8 weeks of therapy, then measures anxiety again — but doesn\'t use a control group. The main threat to this study is:',a:'Lack of internal validity — no control group means alternative explanations cannot be ruled out',d:['Lack of external validity','The sample is too small','The study is unethical']},
+        {q:'A researcher reports only the 3 analyses (out of 20 attempted) that produced p < 0.05. This is an example of:',a:'P-hacking',d:['HARKing','Preregistration','Meta-analysis']},
     ];
 
 
