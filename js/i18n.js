@@ -286,6 +286,7 @@
         const glossTabs = document.querySelectorAll('#pageGloss .subtab');
         if(glossTabs[0]) glossTabs[0].textContent = t('glossTab');
         if(glossTabs[1]) glossTabs[1].textContent = t('glossQuizTab');
+        if(glossTabs[2]) glossTabs[2].textContent = 'PSYC 102';
         const gqStartBtn = document.getElementById('gqStartBtn');
         if(gqStartBtn) gqStartBtn.textContent = t('gqStart');
 

@@ -488,6 +488,94 @@
         setTimeout(() => { if(gq.ans) gqNext(); }, 2000);
     }
 
+    // ============ PSYC 102 QUIZ ============
+    let psyc = {on:false, ans:false, correct:0, total:0, answer:null, choices:[]};
+
+    function psycStart() {
+        psyc = {on:true, ans:false, correct:0, total:0, answer:null, choices:[]};
+        document.getElementById('psycStartArea').style.display = 'none';
+        document.getElementById('psycBtns').style.display = '';
+        document.getElementById('psycScore').textContent = '0/0';
+        document.getElementById('psycAcc').textContent = '-';
+        psycNext();
+    }
+
+    function psycNext() {
+        psyc.ans = false;
+        document.getElementById('psycFeedback').style.display = 'none';
+        const idx = Math.floor(Math.random() * PSYC_QUIZ.length);
+        const item = PSYC_QUIZ[idx];
+        const options = [item.a, ...item.d];
+        for(let i = options.length - 1; i > 0; i--) { const j = Math.floor(Math.random()*(i+1)); [options[i],options[j]] = [options[j],options[i]]; }
+        psyc.answer = options.indexOf(item.a);
+        psyc.choices = options;
+
+        const card = document.getElementById('psycCard');
+        card.textContent = '';
+        const qEl = document.createElement('div');
+        qEl.style.cssText = 'font-size:0.95rem;line-height:1.4;';
+        qEl.textContent = item.q;
+        card.appendChild(qEl);
+
+        const btns = document.getElementById('psycBtns');
+        btns.textContent = '';
+        options.forEach((o, i) => {
+            const btn = document.createElement('button');
+            btn.className = 'q-btn gq-opt';
+            btn.textContent = o;
+            btn.onclick = () => psycAnswer(i);
+            btns.appendChild(btn);
+        });
+    }
+
+    function psycAnswer(i) {
+        if(psyc.ans) return;
+        psyc.ans = true;
+        psyc.total++;
+        const isCorrect = i === psyc.answer;
+        if(isCorrect) psyc.correct++;
+
+        document.getElementById('psycScore').textContent = psyc.correct + '/' + psyc.total;
+        document.getElementById('psycAcc').textContent = psyc.total ? Math.round(psyc.correct/psyc.total*100)+'%' : '-';
+
+        const btns = document.querySelectorAll('#psycBtns .gq-opt');
+        btns.forEach((b, idx) => {
+            if(idx === psyc.answer) b.style.border = '2px solid #3fb950';
+            else if(idx === i && !isCorrect) b.style.border = '2px solid #f85149';
+            b.disabled = true;
+        });
+
+        const fb = document.getElementById('psycFeedback');
+        fb.style.display = '';
+        fb.textContent = '';
+        if(isCorrect) {
+            fb.className = 'feedback correct';
+            const msg = document.createElement('div');
+            msg.className = 'action-text correct';
+            msg.textContent = 'Correct!';
+            fb.appendChild(msg);
+        } else {
+            fb.className = 'feedback wrong';
+            const msg = document.createElement('div');
+            msg.className = 'action-text wrong';
+            msg.textContent = 'Wrong';
+            fb.appendChild(msg);
+            const detail = document.createElement('div');
+            detail.className = 'detail-text';
+            detail.style.marginTop = '6px';
+            detail.textContent = psyc.choices[psyc.answer];
+            fb.appendChild(detail);
+        }
+
+        const nextBtn = document.createElement('button');
+        nextBtn.className = 'big-btn';
+        nextBtn.style.maxWidth = '200px';
+        nextBtn.style.marginTop = '10px';
+        nextBtn.textContent = 'Next';
+        nextBtn.onclick = psycNext;
+        fb.appendChild(nextBtn);
+    }
+
     // ============ KEYBOARD SHORTCUTS ============
     document.addEventListener('keydown', e => {
         if(e.target.tagName==='INPUT') {

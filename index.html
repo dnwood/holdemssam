@@ -145,6 +145,7 @@
             <div class="subtabs">
                 <div class="subtab active" onclick="subTab('gloss','list')">용어집</div>
                 <div class="subtab" onclick="subTab('gloss','quiz')">퀴즈</div>
+                <div class="subtab" onclick="subTab('gloss','psyc')">PSYC 102</div>
             </div>
 
             <div class="subpanel active" id="gloss-list">
@@ -158,6 +159,17 @@
                 <div class="quiz-btns" id="gqBtns" style="display:none;"></div>
                 <div class="feedback" id="gqFeedback" style="display:none;"></div>
                 <div id="gqStartArea"><button class="big-btn" id="gqStartBtn" onclick="gqStart()">용어 퀴즈 시작 🚀</button></div>
+            </div>
+
+            <div class="subpanel" id="gloss-psyc">
+                <div class="score-bar"><span class="score-label">Score: <span class="score-value" id="psycScore">0/0</span></span><span class="score-label">Accuracy: <span class="score-value" id="psycAcc">-</span></span></div>
+                <div class="quiz-card" id="psycCard"><div style="color:#484f58">Ethan's PSYC 102 Midterm Review</div></div>
+                <div class="quiz-btns psyc-btns" id="psycBtns" style="display:none;"></div>
+                <div class="feedback" id="psycFeedback" style="display:none;"></div>
+                <div id="psycStartArea">
+                    <div style="text-align:center;margin-bottom:12px;color:#8b949e;font-size:0.85rem;">Ch 1 · Ch 2 · Ch 15</div>
+                    <button class="big-btn" id="psycStartBtn" onclick="psycStart()">Start Quiz 🚀</button>
+                </div>
             </div>
         </div>
 
