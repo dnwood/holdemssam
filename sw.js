@@ -1,4 +1,4 @@
-const CACHE_NAME = 'holdemssam-v18';
+const CACHE_NAME = 'holdemssam-v19';
 const ASSETS = [
   '/',
   '/index.html',
