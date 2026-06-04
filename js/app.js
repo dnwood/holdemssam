@@ -13,7 +13,10 @@
         const panel = document.getElementById('page' + {pre:'Pre',outs:'Outs',gloss:'Gloss'}[page]);
         panel.querySelectorAll('.subtab').forEach(t => t.classList.remove('active'));
         panel.querySelectorAll('.subpanel').forEach(p => p.classList.remove('active'));
-        event.target.classList.add('active');
+        const tabs = panel.querySelectorAll('.subtab');
+        const subs = {pre:['gui','cli'],outs:['practice','calc'],gloss:['list','quiz','psyc']}[page];
+        const idx = subs.indexOf(sub);
+        if(tabs[idx]) tabs[idx].classList.add('active');
         document.getElementById(page + '-' + sub).classList.add('active');
     }
 
