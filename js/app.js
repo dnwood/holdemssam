@@ -492,10 +492,10 @@
     }
 
     // ============ PSYC 102 QUIZ ============
-    let psyc = {on:false, ans:false, correct:0, total:0, answer:null, choices:[], item:null};
+    let psyc = {on:false, ans:false, correct:0, total:0, answer:null, choices:[], item:null, mode:null};
 
     function psycStart() {
-        psyc = {on:true, ans:false, correct:0, total:0, answer:null, choices:[], item:null};
+        psyc = {on:true, ans:false, correct:0, total:0, answer:null, choices:[], item:null, mode:null};
         document.getElementById('psycStartArea').style.display = 'none';
         document.getElementById('psycBtns').style.display = '';
         document.getElementById('psycScore').textContent = '0/0';
@@ -506,30 +506,114 @@
     function psycNext() {
         psyc.ans = false;
         document.getElementById('psycFeedback').style.display = 'none';
-        const idx = Math.floor(Math.random() * PSYC_QUIZ.length);
-        const item = PSYC_QUIZ[idx];
-        const options = [item.a, ...item.d];
-        for(let i = options.length - 1; i > 0; i--) { const j = Math.floor(Math.random()*(i+1)); [options[i],options[j]] = [options[j],options[i]]; }
-        psyc.answer = options.indexOf(item.a);
-        psyc.choices = options;
+        const btns = document.getElementById('psycBtns');
+        btns.textContent = '';
+
+        const allItems = PSYC_QUIZ.concat(PSYC_FILL);
+        const idx = Math.floor(Math.random() * allItems.length);
+        const item = allItems[idx];
         psyc.item = item;
 
         const card = document.getElementById('psycCard');
         card.textContent = '';
-        const qEl = document.createElement('div');
-        qEl.style.cssText = 'font-size:0.95rem;line-height:1.4;';
-        qEl.textContent = item.q;
-        card.appendChild(qEl);
 
-        const btns = document.getElementById('psycBtns');
-        btns.textContent = '';
-        options.forEach((o, i) => {
-            const btn = document.createElement('button');
-            btn.className = 'q-btn gq-opt';
-            btn.textContent = o;
-            btn.onclick = () => psycAnswer(i);
-            btns.appendChild(btn);
-        });
+        if(item.type === 'fill') {
+            psyc.mode = 'fill';
+            document.getElementById('psycBtns').style.display = 'none';
+            const prompt = document.createElement('div');
+            prompt.style.cssText = 'font-size:0.9rem;line-height:1.4;margin-bottom:12px;';
+            prompt.textContent = item.prompt;
+            card.appendChild(prompt);
+            const hint = document.createElement('div');
+            hint.style.cssText = 'color:var(--text-muted);font-size:0.8rem;';
+            hint.textContent = 'What concept is this?';
+            card.appendChild(hint);
+
+            const inputWrap = document.createElement('div');
+            inputWrap.style.cssText = 'margin-top:12px;text-align:center;';
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'cli-input';
+            input.style.cssText = 'width:100%;max-width:300px;margin:0 auto;display:block;';
+            input.placeholder = 'Type your answer...';
+            input.id = 'psycFillInput';
+            inputWrap.appendChild(input);
+            const revealBtn = document.createElement('button');
+            revealBtn.className = 'big-btn';
+            revealBtn.style.cssText = 'max-width:200px;margin:10px auto 0;';
+            revealBtn.textContent = 'Reveal Answer';
+            revealBtn.onclick = psycRevealFill;
+            inputWrap.appendChild(revealBtn);
+            btns.style.display = '';
+            btns.appendChild(inputWrap);
+            input.addEventListener('keydown', function(ev) { if(ev.key === 'Enter') psycRevealFill(); });
+            input.focus();
+        } else {
+            psyc.mode = 'mc';
+            document.getElementById('psycBtns').style.display = '';
+            const qEl = document.createElement('div');
+            qEl.style.cssText = 'font-size:0.95rem;line-height:1.4;';
+            qEl.textContent = item.q;
+            card.appendChild(qEl);
+
+            const options = [item.a, ...item.d];
+            for(let i = options.length - 1; i > 0; i--) { const j = Math.floor(Math.random()*(i+1)); [options[i],options[j]] = [options[j],options[i]]; }
+            psyc.answer = options.indexOf(item.a);
+            psyc.choices = options;
+
+            options.forEach((o, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'q-btn gq-opt';
+                btn.textContent = o;
+                btn.onclick = () => psycAnswer(i);
+                btns.appendChild(btn);
+            });
+        }
+    }
+
+    function psycRevealFill() {
+        if(psyc.ans) return;
+        psyc.ans = true;
+        psyc.total++;
+        document.getElementById('psycScore').textContent = psyc.correct + '/' + psyc.total;
+        document.getElementById('psycAcc').textContent = psyc.total ? Math.round(psyc.correct/psyc.total*100)+'%' : '-';
+
+        const fb = document.getElementById('psycFeedback');
+        fb.style.display = '';
+        fb.textContent = '';
+        fb.className = 'feedback correct';
+
+        const ansLabel = document.createElement('div');
+        ansLabel.style.cssText = 'font-size:0.75rem;color:var(--text-muted);margin-bottom:4px;';
+        ansLabel.textContent = 'Answer:';
+        fb.appendChild(ansLabel);
+        const ansText = document.createElement('div');
+        ansText.style.cssText = 'font-size:1.1rem;font-weight:700;color:var(--accent);';
+        ansText.textContent = psyc.item.answer;
+        fb.appendChild(ansText);
+
+        if(psyc.item.e) {
+            const explain = document.createElement('div');
+            explain.style.cssText = 'margin-top:10px;padding:8px 12px;background:var(--accent-bg);border-radius:8px;font-size:0.82rem;line-height:1.4;color:var(--text);';
+            explain.textContent = psyc.item.e;
+            fb.appendChild(explain);
+        }
+
+        const markWrap = document.createElement('div');
+        markWrap.style.cssText = 'margin-top:10px;display:flex;gap:8px;justify-content:center;';
+        const gotIt = document.createElement('button');
+        gotIt.className = 'q-btn';
+        gotIt.style.cssText = 'border-color:var(--green);color:var(--green);font-size:0.85rem;padding:8px 16px;';
+        gotIt.textContent = 'Got it';
+        gotIt.onclick = () => { psyc.correct++; document.getElementById('psycScore').textContent = psyc.correct + '/' + psyc.total; document.getElementById('psycAcc').textContent = Math.round(psyc.correct/psyc.total*100)+'%'; psycNext(); };
+        const missed = document.createElement('button');
+        missed.className = 'q-btn';
+        missed.style.cssText = 'border-color:var(--red);color:var(--red);font-size:0.85rem;padding:8px 16px;';
+        missed.textContent = 'Missed it';
+        missed.onclick = psycNext;
+        markWrap.appendChild(gotIt);
+        markWrap.appendChild(missed);
+        fb.appendChild(markWrap);
     }
 
     function psycAnswer(i) {
