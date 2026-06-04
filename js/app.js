@@ -492,10 +492,10 @@
     }
 
     // ============ PSYC 102 QUIZ ============
-    let psyc = {on:false, ans:false, correct:0, total:0, answer:null, choices:[]};
+    let psyc = {on:false, ans:false, correct:0, total:0, answer:null, choices:[], item:null};
 
     function psycStart() {
-        psyc = {on:true, ans:false, correct:0, total:0, answer:null, choices:[]};
+        psyc = {on:true, ans:false, correct:0, total:0, answer:null, choices:[], item:null};
         document.getElementById('psycStartArea').style.display = 'none';
         document.getElementById('psycBtns').style.display = '';
         document.getElementById('psycScore').textContent = '0/0';
@@ -512,6 +512,7 @@
         for(let i = options.length - 1; i > 0; i--) { const j = Math.floor(Math.random()*(i+1)); [options[i],options[j]] = [options[j],options[i]]; }
         psyc.answer = options.indexOf(item.a);
         psyc.choices = options;
+        psyc.item = item;
 
         const card = document.getElementById('psycCard');
         card.textContent = '';
@@ -551,23 +552,26 @@
         const fb = document.getElementById('psycFeedback');
         fb.style.display = '';
         fb.textContent = '';
-        if(isCorrect) {
-            fb.className = 'feedback correct';
-            const msg = document.createElement('div');
-            msg.className = 'action-text correct';
-            msg.textContent = 'Correct!';
-            fb.appendChild(msg);
-        } else {
-            fb.className = 'feedback wrong';
-            const msg = document.createElement('div');
-            msg.className = 'action-text wrong';
-            msg.textContent = 'Wrong';
-            fb.appendChild(msg);
-            const detail = document.createElement('div');
-            detail.className = 'detail-text';
-            detail.style.marginTop = '6px';
-            detail.textContent = psyc.choices[psyc.answer];
-            fb.appendChild(detail);
+        fb.className = 'feedback ' + (isCorrect ? 'correct' : 'wrong');
+
+        const msg = document.createElement('div');
+        msg.className = 'action-text ' + (isCorrect ? 'correct' : 'wrong');
+        msg.textContent = isCorrect ? 'Correct!' : 'Wrong';
+        fb.appendChild(msg);
+
+        if(!isCorrect) {
+            const ans = document.createElement('div');
+            ans.className = 'detail-text';
+            ans.style.marginTop = '6px';
+            ans.textContent = psyc.choices[psyc.answer];
+            fb.appendChild(ans);
+        }
+
+        if(psyc.item.e) {
+            const explain = document.createElement('div');
+            explain.style.cssText = 'margin-top:10px;padding:8px 12px;background:var(--accent-bg);border-radius:8px;font-size:0.82rem;line-height:1.4;color:var(--text);';
+            explain.textContent = psyc.item.e;
+            fb.appendChild(explain);
         }
 
         const nextBtn = document.createElement('button');
